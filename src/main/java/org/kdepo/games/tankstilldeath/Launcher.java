@@ -1,9 +1,12 @@
 package org.kdepo.games.tankstilldeath;
 
+import org.kdepo.games.tankstilldeath.screens.TestScreen;
 import org.kdepo.graphics.k2d.GameEngine;
 import org.kdepo.graphics.k2d.GamePanel;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Launcher {
 
@@ -11,6 +14,13 @@ public class Launcher {
         GameEngine gameEngine = new GameEngine();
         gameEngine.setScreenWidth(800);
         gameEngine.setScreenHeight(600);
+
+        TestScreen testScreen = new TestScreen();
+
+        gameEngine.addScreen(testScreen);
+
+        Map<String, Object> parameters = new HashMap<>();
+        gameEngine.setActiveScreen(testScreen.getName(), parameters);
 
         GamePanel gamePanel = new GamePanel(gameEngine.getScreenWidth(), gameEngine.getScreenHeight());
         gamePanel.setGameEngine(gameEngine);
