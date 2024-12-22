@@ -1,5 +1,7 @@
 package org.kdepo.graphics.k2d.resources;
 
+import org.kdepo.graphics.k2d.fonts.Font;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
@@ -10,6 +12,8 @@ public class ResourcesController {
     private static volatile ResourcesController instance;
 
     private final Map<String, Resource> resourceMap;
+
+    private final Map<String, Font> fontsCache;
 
     private final Map<String, BufferedImage> bufferedImagesCache;
 
@@ -33,6 +37,7 @@ public class ResourcesController {
 
         resourceMap = new HashMap<>();
         bufferedImagesCache = new HashMap<>();
+        fontsCache = new HashMap<>();
 
         System.out.println("ResourcesController initialized!");
     }
@@ -66,6 +71,21 @@ public class ResourcesController {
             String resourcePath = resource.getPath();
             result = ImageUtils.load(path + resourcePath);
             bufferedImagesCache.put(resourceId, result);
+        }
+        return result;
+    }
+
+    public Font getFont(String resourceId) {
+        Font result = fontsCache.get(resourceId);
+        if (result == null) {
+            Resource resource = resourceMap.get(resourceId);
+            if (resource == null) {
+                throw new RuntimeException("Resource not found for the next id: " + resourceId);
+            }
+
+            String resourcePath = resource.getPath();
+            result = FontUtils.load(path + resourcePath);
+            fontsCache.put(resourceId, result);
         }
         return result;
     }
