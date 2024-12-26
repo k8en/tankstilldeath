@@ -1,5 +1,7 @@
 package org.kdepo.games.tankstilldeath.screens;
 
+import org.kdepo.games.tankstilldeath.model.MoveDirection;
+import org.kdepo.games.tankstilldeath.model.Tank;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
 import org.kdepo.graphics.k2d.animations.Animation;
@@ -22,6 +24,8 @@ public class TestScreen extends AbstractScreen {
     private BufferedImage biBackground;
     private Font font13x15o;
 
+    private Tank tank;
+
     public TestScreen() {
         this.name = "test";
         resourcesController = ResourcesController.getInstance();
@@ -39,10 +43,15 @@ public class TestScreen extends AbstractScreen {
                 AnimationPlayDirection.FORWARD,
                 AnimationPlayMode.LOOP
         );
+
+        tank = new Tank(320, 200, MoveDirection.NORTH);
     }
 
     @Override
     public void update(KeyHandler keyHandler, MouseHandler mouseHandler) {
+        tank.resolveControls(keyHandler);
+        tank.update();
+
         animationController.update();
     }
 
@@ -57,11 +66,16 @@ public class TestScreen extends AbstractScreen {
                 40, 40,
                 null
         );
+
+        tank.render(g);
     }
 
     @Override
     public void dispose() {
         biBackground = null;
+        font13x15o = null;
+        animationController = null;
+        tank = null;
     }
 
 }
