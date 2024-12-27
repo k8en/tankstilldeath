@@ -63,6 +63,12 @@ public class Tank extends Rectangle {
 
         this.width = animationController.getActiveFrame().getImage().getWidth();
         this.height = animationController.getActiveFrame().getImage().getHeight();
+
+        hitBox = new Rectangle(this.x, this.y, width, height);
+    }
+
+    public Rectangle getHitBox() {
+        return hitBox;
     }
 
     public void resolveControls(KeyHandler keyHandler) {
@@ -137,6 +143,9 @@ public class Tank extends Rectangle {
         if (isMoving) {
             x = x + movementSpeed * moveDirection.getX();
             y = y + movementSpeed * moveDirection.getY();
+
+            hitBox.setX(x);
+            hitBox.setY(y);
         }
         animationController.update();
 

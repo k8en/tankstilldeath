@@ -11,7 +11,7 @@ public class BulletController {
 
     private static BulletController instance;
 
-    private List<Bullet> bulletList;
+    private final List<Bullet> bulletList;
 
     public static BulletController getInstance() {
         if (instance == null) {
@@ -22,6 +22,10 @@ public class BulletController {
 
     private BulletController() {
         bulletList = new ArrayList<>();
+    }
+
+    public List<Bullet> getBulletList() {
+        return bulletList;
     }
 
     public void spawn(double x, double y, MoveDirection moveDirection) {

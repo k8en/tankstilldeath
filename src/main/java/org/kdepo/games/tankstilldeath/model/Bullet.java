@@ -53,6 +53,8 @@ public class Bullet extends Rectangle {
 
         this.width = animationController.getActiveFrame().getImage().getWidth();
         this.height = animationController.getActiveFrame().getImage().getHeight();
+
+        hitBox = new Rectangle(this.x, this.y, width, height);
     }
 
     public MoveDirection getMoveDirection() {
@@ -61,6 +63,10 @@ public class Bullet extends Rectangle {
 
     public void setMoveDirection(MoveDirection moveDirection) {
         this.moveDirection = moveDirection;
+    }
+
+    public Rectangle getHitBox() {
+        return hitBox;
     }
 
     public boolean isActive() {
@@ -74,6 +80,8 @@ public class Bullet extends Rectangle {
     public void update() {
         x = x + movementSpeed * moveDirection.getX();
         y = y + movementSpeed * moveDirection.getY();
+        hitBox.setX(x);
+        hitBox.setY(y);
 
         animationController.update();
     }
