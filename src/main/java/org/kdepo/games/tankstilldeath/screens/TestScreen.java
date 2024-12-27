@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.screens;
 
+import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.Tank;
 import org.kdepo.graphics.k2d.KeyHandler;
@@ -20,6 +21,8 @@ public class TestScreen extends AbstractScreen {
 
     private final ResourcesController resourcesController;
 
+    private final BulletController bulletController;
+
     private AnimationController animationController;
     private BufferedImage biBackground;
     private Font font13x15o;
@@ -29,6 +32,7 @@ public class TestScreen extends AbstractScreen {
     public TestScreen() {
         this.name = "test";
         resourcesController = ResourcesController.getInstance();
+        bulletController = BulletController.getInstance();
     }
 
     @Override
@@ -52,6 +56,8 @@ public class TestScreen extends AbstractScreen {
         tank.resolveControls(keyHandler);
         tank.update();
 
+        bulletController.update();
+
         animationController.update();
     }
 
@@ -68,6 +74,7 @@ public class TestScreen extends AbstractScreen {
         );
 
         tank.render(g);
+        bulletController.render(g);
     }
 
     @Override
