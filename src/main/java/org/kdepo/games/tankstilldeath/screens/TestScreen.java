@@ -1,6 +1,7 @@
 package org.kdepo.games.tankstilldeath.screens;
 
 import org.kdepo.games.tankstilldeath.controllers.BulletController;
+import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
@@ -12,6 +13,7 @@ import org.kdepo.graphics.k2d.animations.AnimationController;
 import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.fonts.Font;
+import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.screens.AbstractScreen;
 import org.kdepo.graphics.k2d.utils.CollisionsChecker;
@@ -25,6 +27,7 @@ public class TestScreen extends AbstractScreen {
     private final ResourcesController resourcesController;
 
     private final BulletController bulletController;
+    private final ExplosionController explosionController;
     private final TankController tankController;
 
     private AnimationController animationController;
@@ -37,6 +40,7 @@ public class TestScreen extends AbstractScreen {
         this.name = "test";
         resourcesController = ResourcesController.getInstance();
         bulletController = BulletController.getInstance();
+        explosionController = ExplosionController.getInstance();
         tankController = TankController.getInstance();
     }
 
@@ -66,11 +70,15 @@ public class TestScreen extends AbstractScreen {
         playerTank.update();
 
         bulletController.update();
+        explosionController.update();
+
         for (Bullet bullet : bulletController.getBulletList()) {
             if (bullet.isActive()) {
                 for (Tank tank : tankController.getTankList()) {
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
+                        Point tankCenter = tank.getCenter();
+                        explosionController.spawn(tankCenter.getX(), tankCenter.getY());
                     }
                 }
             }
@@ -94,6 +102,7 @@ public class TestScreen extends AbstractScreen {
         tankController.render(g);
         playerTank.render(g);
         bulletController.render(g);
+        explosionController.render(g);
     }
 
     @Override

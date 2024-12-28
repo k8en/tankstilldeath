@@ -26,6 +26,17 @@ public class Rectangle extends Point {
         return height;
     }
 
+    public Point getCenter() {
+        double cx = x + width / 2;
+        double cy = y + height / 2;
+        return new Point(cx, cy);
+    }
+
+    public void setCenter(double cx, double cy) {
+        this.x = cx - width / 2;
+        this.y = cy - height / 2;
+    }
+
     @Override
     public String toString() {
         return "Rectangle{" +
