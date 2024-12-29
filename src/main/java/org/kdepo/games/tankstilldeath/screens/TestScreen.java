@@ -4,22 +4,22 @@ import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
 import org.kdepo.games.tankstilldeath.model.Bullet;
+import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.Tank;
+import org.kdepo.games.tankstilldeath.utils.MapDataUtils;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
-import org.kdepo.graphics.k2d.animations.Animation;
-import org.kdepo.graphics.k2d.animations.AnimationController;
-import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
-import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.fonts.Font;
 import org.kdepo.graphics.k2d.geometry.Point;
+import org.kdepo.graphics.k2d.resources.Resource;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.screens.AbstractScreen;
+import org.kdepo.graphics.k2d.tiles.TileController;
 import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Map;
 
 public class TestScreen extends AbstractScreen {
@@ -29,12 +29,13 @@ public class TestScreen extends AbstractScreen {
     private final BulletController bulletController;
     private final ExplosionController explosionController;
     private final TankController tankController;
+    private final TileController tileController;
 
-    private AnimationController animationController;
-    private BufferedImage biBackground;
     private Font font13x15o;
 
     private Tank playerTank;
+
+    private MapData mapData;
 
     public TestScreen() {
         this.name = "test";
@@ -42,24 +43,20 @@ public class TestScreen extends AbstractScreen {
         bulletController = BulletController.getInstance();
         explosionController = ExplosionController.getInstance();
         tankController = TankController.getInstance();
+        tileController = TileController.getInstance();
     }
 
     @Override
     public void initialize(Map<String, Object> parameters) {
-        biBackground = resourcesController.getImage("image_background");
         font13x15o = resourcesController.getFont("font_n13x15o");
-
-        Map<String, Animation> animationMap = resourcesController.getAnimations("animation_test");
-        animationController = new AnimationController(
-                animationMap,
-                animationMap.get("animation_test"),
-                AnimationPlayDirection.FORWARD,
-                AnimationPlayMode.LOOP
-        );
 
         playerTank = new Tank(320, 200, MoveDirection.NORTH);
 
         tankController.spawn(320, 50, MoveDirection.SOUTH);
+
+        Resource mapResource = resourcesController.getResource("map_test");
+        mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
+        tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
     }
 
     @Override
@@ -83,33 +80,27 @@ public class TestScreen extends AbstractScreen {
                 }
             }
         }
-
-        animationController.update();
     }
 
     @Override
     public void render(Graphics2D g) {
-        g.setColor(Color.WHITE);
-        g.drawImage(biBackground, 0, 0, null);
-        font13x15o.render(g, "This is a test", 10, 10);
+        tileController.render(g, TileController.LAYER_BOTTOM);
 
-        g.drawImage(
-                animationController.getActiveFrame().getImage(),
-                40, 40,
-                null
-        );
+        tileController.render(g, TileController.LAYER_MIDDLE);
 
         tankController.render(g);
         playerTank.render(g);
         bulletController.render(g);
         explosionController.render(g);
+
+        tileController.render(g, TileController.LAYER_TOP);
+
+        font13x15o.render(g, "This is a test", 10, 10);
     }
 
     @Override
     public void dispose() {
-        biBackground = null;
         font13x15o = null;
-        animationController = null;
         playerTank = null;
     }
 

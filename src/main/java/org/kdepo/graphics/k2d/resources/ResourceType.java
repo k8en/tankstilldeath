@@ -4,6 +4,8 @@ public enum ResourceType {
 
     ANIMATION,
     FONT,
-    IMAGE
+    IMAGE,
+    MAP,
+    TILE_CONFIGURATION
 
 }

@@ -52,7 +52,7 @@ public class BulletController {
     public void update() {
         for (Bullet bullet : bulletList) {
             if (bullet.isActive()) {
-                if (bullet.getX() < 0 || bullet.getX() > 800 || bullet.getY() < 0 || bullet.getY() > 600) {
+                if (bullet.getX() < 0 || bullet.getX() > 1280 || bullet.getY() < 0 || bullet.getY() > 916) {
                     bullet.setActive(false);
                     continue;
                 }

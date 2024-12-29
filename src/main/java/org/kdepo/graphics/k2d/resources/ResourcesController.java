@@ -2,6 +2,8 @@ package org.kdepo.graphics.k2d.resources;
 
 import org.kdepo.graphics.k2d.animations.Animation;
 import org.kdepo.graphics.k2d.fonts.Font;
+import org.kdepo.graphics.k2d.tiles.TileController;
+import org.kdepo.graphics.k2d.utils.ResourcesUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -60,8 +62,18 @@ public class ResourcesController {
 
     public void loadDefinitions(String fileName) {
         resourceMap.clear();
-        resourceMap.putAll(ResourceUtils.loadDefinitions(this.path + fileName));
+        resourceMap.putAll(ResourcesUtils.loadDefinitions(this.path + fileName));
         System.out.println("Loaded resources: " + resourceMap.size());
+
+        Resource tileConfigurationResource = resourceMap.get("tile_configuration");
+        if (tileConfigurationResource != null) {
+            TileController tileController = TileController.getInstance();
+            tileController.loadConfigurations(this.path + tileConfigurationResource.getPath());
+        }
+    }
+
+    public Resource getResource(String resourceId) {
+        return resourceMap.get(resourceId);
     }
 
     public BufferedImage getImage(String resourceId) {

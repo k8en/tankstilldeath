@@ -31,8 +31,8 @@ public class Launcher {
         resourcesController.loadDefinitions("resources.xml");
 
         GameEngine gameEngine = new GameEngine();
-        gameEngine.setScreenWidth(800);
-        gameEngine.setScreenHeight(600);
+        gameEngine.setScreenWidth(1280); // 80 blocks
+        gameEngine.setScreenHeight(916); // 60 blocks
 
         TestScreen testScreen = new TestScreen();
 

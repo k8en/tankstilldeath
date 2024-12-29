@@ -1,5 +1,7 @@
-package org.kdepo.graphics.k2d.resources;
+package org.kdepo.graphics.k2d.utils;
 
+import org.kdepo.graphics.k2d.resources.Resource;
+import org.kdepo.graphics.k2d.resources.ResourceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResourceUtils {
+public class ResourcesUtils {
 
     public static Map<String, Resource> loadDefinitions(String pathToFile) {
         System.out.println("Loading resource definitions from " + pathToFile);
