@@ -75,8 +75,16 @@ public class TestScreen extends AbstractScreen {
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
                         Point tankCenter = tank.getCenter();
-                        explosionController.spawn(tankCenter.getX(), tankCenter.getY());
+                        explosionController.spawn(tankCenter.getX(), tankCenter.getY(), "animation_explosion_01");
                     }
+                }
+            }
+
+            if (bullet.isActive()) {
+                Point bulletCenter = bullet.getCenter();
+                if (tileController.hasCollision(bulletCenter)) {
+                    bullet.setActive(false);
+                    explosionController.spawn(bulletCenter.getX(), bulletCenter.getY(), "animation_explosion_00");
                 }
             }
         }

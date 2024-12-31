@@ -23,7 +23,7 @@ public class ExplosionController {
         explosionList = new ArrayList<>();
     }
 
-    public void spawn(double centerX, double centerY) {
+    public void spawn(double centerX, double centerY, String animationMapName) {
         Explosion explosionToSpawn = null;
         for (Explosion explosion : explosionList) {
             if (!explosion.isActive()) {
@@ -33,14 +33,14 @@ public class ExplosionController {
         }
 
         if (explosionToSpawn == null) {
-            explosionToSpawn = new Explosion(0, 0);
+            explosionToSpawn = new Explosion(0, 0, animationMapName);
             explosionToSpawn.setCenter(centerX, centerY);
             explosionToSpawn.setActive(true);
             explosionList.add(explosionToSpawn);
         } else {
+            explosionToSpawn.restartAnimation(animationMapName);
             explosionToSpawn.setCenter(centerX, centerY);
             explosionToSpawn.setActive(true);
-            explosionToSpawn.restartAnimation();
         }
     }
 

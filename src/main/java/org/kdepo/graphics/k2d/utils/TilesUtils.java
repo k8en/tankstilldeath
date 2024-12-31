@@ -47,7 +47,7 @@ public class TilesUtils {
             return result;
         }
 
-        // Load resources definitions
+        // Load tile configurations
         Document xmlDocument = null;
         try {
             xmlDocument = db.parse(pathToFile);
@@ -72,41 +72,56 @@ public class TilesUtils {
                     Node resourceNode = resourcesNodesList.item(j);
                     if ("tile".equals(resourceNode.getNodeName())) {
 
-                        Element resourceElement = (Element) resourceNode;
+                        Element tileElement = (Element) resourceNode;
 
-                        String idStr = resourceElement.getAttribute("id");
-                        if (idStr.isEmpty()) {
-                            System.out.println("Tile id not found for " + resourceElement);
-                            continue;
-                        }
-                        int id = -1;
-                        try {
-                            id = Integer.parseInt(idStr);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Tile id not resolved for " + idStr);
-                            continue;
-                        }
+                        int id = resolveIntAttribute(tileElement, "id");
+                        String imageName = resolveStringAttribute(tileElement, "image");
+                        int hitBoxX = resolveIntAttribute(tileElement, "hit_box_x");
+                        int hitBoxY = resolveIntAttribute(tileElement, "hit_box_y");
+                        int hitBoxWidth = resolveIntAttribute(tileElement, "hit_box_width");
+                        int hitBoxHeight = resolveIntAttribute(tileElement, "hit_box_height");
 
-                        String imageStr = resourceElement.getAttribute("image");
-                        if (imageStr.isEmpty()) {
-                            System.out.println("Tile image not found for " + resourceElement);
-                            continue;
-                        }
-                        BufferedImage image = resourcesController.getImage(imageStr);
+                        BufferedImage image = resourcesController.getImage(imageName);
 
                         TileConfiguration tileConfiguration = new TileConfiguration(
                                 id,
-                                image
+                                image,
+                                hitBoxX,
+                                hitBoxY,
+                                hitBoxWidth,
+                                hitBoxHeight
                         );
 
                         result.put(id, tileConfiguration);
-                        System.out.println("Tile configuration loaded: id=" + id + ", image='" + imageStr + "'");
+                        System.out.println("Tile configuration loaded: id=" + hitBoxX + ", image='" + imageName + "'");
                     }
                 }
             }
         }
 
         return result;
+    }
+
+    private static int resolveIntAttribute(Element element, String attributeName) {
+        String valueStr = element.getAttribute(attributeName);
+        if (valueStr.isEmpty()) {
+            System.out.println("Tile '" + attributeName + "' not found for " + element);
+        }
+        int value = -1;
+        try {
+            value = Integer.parseInt(valueStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Tile '" + attributeName + "' not resolved for " + valueStr);
+        }
+        return value;
+    }
+
+    private static String resolveStringAttribute(Element element, String attributeName) {
+        String value = element.getAttribute(attributeName);
+        if (value.isEmpty()) {
+            System.out.println("Tile '" + attributeName + "' not found for " + element);
+        }
+        return value;
     }
 
 }

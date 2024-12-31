@@ -1,45 +1,44 @@
 package org.kdepo.graphics.k2d.tiles;
 
+import org.kdepo.graphics.k2d.geometry.Rectangle;
+
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-public class Tile {
-
-    private final int x;
-
-    private final int y;
+public class Tile extends Rectangle {
 
     private final BufferedImage image;
 
-    public Tile(int x, int y, BufferedImage image) {
+    private Rectangle hitBox;
+
+    public Tile(double x, double y, BufferedImage image, Rectangle hitBox) {
         this.x = x;
         this.y = y;
+        this.width = image.getWidth();
+        this.height = image.getHeight();
         this.image = image;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
+        this.hitBox = new Rectangle(this.x + hitBox.getX(), this.y + hitBox.getY(), hitBox.getWidth(), hitBox.getHeight());
     }
 
     public BufferedImage getImage() {
         return image;
     }
 
+    public Rectangle getHitBox() {
+        return hitBox;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         Tile tile = (Tile) o;
-        return x == tile.x
-                && y == tile.y
-                && Objects.equals(image, tile.image);
+        return Objects.equals(image, tile.image)
+                && Objects.equals(hitBox, tile.hitBox);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, image);
+        return Objects.hash(super.hashCode(), image, hitBox);
     }
 }

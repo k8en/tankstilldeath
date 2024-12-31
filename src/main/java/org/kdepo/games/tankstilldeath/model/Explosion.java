@@ -12,16 +12,18 @@ import java.util.Map;
 
 public class Explosion extends Rectangle {
 
+    private final ResourcesController resourcesController;
+
     private boolean isActive;
 
     private final AnimationController animationController;
 
-    public Explosion(double x, double y) {
+    public Explosion(double x, double y, String animationMapName) {
         this.x = x;
         this.y = y;
 
-        ResourcesController resourcesController = ResourcesController.getInstance();
-        Map<String, Animation> animationMap = resourcesController.getAnimations("animation_explosion_01");
+        resourcesController = ResourcesController.getInstance();
+        Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
 
         animationController = new AnimationController(
                 animationMap,
@@ -42,8 +44,15 @@ public class Explosion extends Rectangle {
         isActive = active;
     }
 
-    public void restartAnimation() {
+    public void restartAnimation(String animationMapName) {
+        Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
+        Animation activeAnimation = animationMap.get("explosion");
+        animationController.setAnimationsMap(animationMap);
+        animationController.setActiveAnimation(activeAnimation);
         animationController.restartActiveAnimation();
+
+        width = activeAnimation.getAnimationFrames().get(0).getImage().getWidth();
+        height = activeAnimation.getAnimationFrames().get(0).getImage().getHeight();
     }
 
     public void update() {

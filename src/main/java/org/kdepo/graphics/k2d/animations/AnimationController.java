@@ -9,7 +9,7 @@ public class AnimationController {
      * Key - animation name
      * Value - animation
      */
-    private final Map<String, Animation> animationsMap;
+    private Map<String, Animation> animationsMap;
 
     /**
      * Current active animation
@@ -57,6 +57,14 @@ public class AnimationController {
 
         this.isActiveFrameCompleted = false;
         this.isActiveAnimationCompleted = false;
+    }
+
+    public void setAnimationsMap(Map<String, Animation> animationsMap) {
+        this.animationsMap = animationsMap;
+    }
+
+    public void setActiveAnimation(Animation animation) {
+        this.activeAnimation = animation;
     }
 
     public AnimationFrame getActiveFrame() {
@@ -188,5 +196,4 @@ public class AnimationController {
     public void setAnimationPlayDirection(AnimationPlayDirection animationPlayDirection) {
         this.animationPlayDirection = animationPlayDirection;
     }
-
 }

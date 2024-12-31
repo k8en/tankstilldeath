@@ -1,5 +1,7 @@
 package org.kdepo.graphics.k2d.tiles;
 
+import org.kdepo.graphics.k2d.geometry.Point;
+import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 import org.kdepo.graphics.k2d.utils.FilesUtils;
 import org.kdepo.graphics.k2d.utils.TilesUtils;
 
@@ -77,12 +79,27 @@ public class TileController {
             for (int i = 0; i < layerIdsData[j].length; i++) {
                 TileConfiguration tileConfiguration = tileConfigurationMap.get(layerIdsData[j][i]);
                 if (tileConfiguration != null) {
-                    layerData[j][i] = new Tile(i * 16, j * 16, tileConfiguration.getImage());
+                    layerData[j][i] = new Tile(i * 16, j * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
                 }
             }
         }
 
         return layerData;
+    }
+
+    public boolean hasCollision(Point point) {
+        int tileX = (int) (point.getX() / 16);
+        int tileY = (int) (point.getY() / 16);
+
+        if (tileX < 0 || tileX >= 80 || tileY < 0 || tileY >= 60) {
+            return false;
+        }
+
+        Tile tile = layerData1[tileY][tileX];
+        if (tile != null) {
+            return CollisionsChecker.hasCollision(tile.getHitBox(), point.getX(), point.getY());
+        }
+        return false;
     }
 
     public void update() {
@@ -94,7 +111,7 @@ public class TileController {
             for (Tile[] tiles : layerData0) {
                 for (Tile tile : tiles) {
                     if (tile != null) {
-                        g.drawImage(tile.getImage(), tile.getX(), tile.getY(), null);
+                        g.drawImage(tile.getImage(), (int) tile.getX(), (int) tile.getY(), null);
                     }
                 }
             }
@@ -103,7 +120,7 @@ public class TileController {
             for (Tile[] tiles : layerData1) {
                 for (Tile tile : tiles) {
                     if (tile != null) {
-                        g.drawImage(tile.getImage(), tile.getX(), tile.getY(), null);
+                        g.drawImage(tile.getImage(), (int) tile.getX(), (int) tile.getY(), null);
                     }
                 }
             }
@@ -112,7 +129,7 @@ public class TileController {
             for (Tile[] tiles : layerData2) {
                 for (Tile tile : tiles) {
                     if (tile != null) {
-                        g.drawImage(tile.getImage(), tile.getX(), tile.getY(), null);
+                        g.drawImage(tile.getImage(), (int) tile.getX(), (int) tile.getY(), null);
                     }
                 }
             }
