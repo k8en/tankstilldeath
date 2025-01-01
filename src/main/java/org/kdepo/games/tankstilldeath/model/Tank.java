@@ -8,16 +8,22 @@ import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
+import org.kdepo.graphics.k2d.tiles.TileController;
 
 import java.awt.*;
 import java.util.Map;
 
 public class Tank extends Rectangle {
 
+    private TileController tileController;
+
     private MoveDirection moveDirection;
     private boolean isMoving;
     private double movementSpeed;
+
     private Rectangle hitBox;
+    private int hitBoxOffsetX;
+    private int hitBoxOffsetY;
 
     boolean isReadyToShot;
     private double reloadingProgress;
@@ -25,7 +31,9 @@ public class Tank extends Rectangle {
 
     private final AnimationController animationController;
 
-    public Tank(double x, double y, MoveDirection moveDirection) {
+    public Tank(double x, double y, MoveDirection moveDirection, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight) {
+        tileController = TileController.getInstance();
+
         this.x = x;
         this.y = y;
         this.moveDirection = moveDirection;
@@ -64,7 +72,14 @@ public class Tank extends Rectangle {
         this.width = animationController.getActiveFrame().getImage().getWidth();
         this.height = animationController.getActiveFrame().getImage().getHeight();
 
-        hitBox = new Rectangle(this.x, this.y, width, height);
+        this.hitBoxOffsetX = hitBoxOffsetX;
+        this.hitBoxOffsetY = hitBoxOffsetY;
+        hitBox = new Rectangle(
+                this.x + this.hitBoxOffsetX,
+                this.y + this.hitBoxOffsetY,
+                hitBoxWidth,
+                hitBoxHeight
+        );
     }
 
     public Rectangle getHitBox() {
@@ -141,11 +156,19 @@ public class Tank extends Rectangle {
 
     public void update() {
         if (isMoving) {
-            x = x + movementSpeed * moveDirection.getX();
-            y = y + movementSpeed * moveDirection.getY();
+            double nextX = x + movementSpeed * moveDirection.getX();
+            double nextY = y + movementSpeed * moveDirection.getY();
 
-            hitBox.setX(x);
-            hitBox.setY(y);
+            hitBox.setX(nextX + hitBoxOffsetX);
+            hitBox.setY(nextY + hitBoxOffsetY);
+
+            if (tileController.hasCollision(hitBox)) {
+                hitBox.setX(x + hitBoxOffsetX);
+                hitBox.setY(y + hitBoxOffsetY);
+            } else {
+                x = nextX;
+                y = nextY;
+            }
         }
         animationController.update();
 
@@ -164,6 +187,9 @@ public class Tank extends Rectangle {
                 (int) x, (int) y,
                 null
         );
+
+        //g.setColor(Color.MAGENTA);
+        //g.drawRect((int) hitBox.getX(), (int) hitBox.getY(), (int) hitBox.getWidth(), (int) hitBox.getHeight());
     }
 
 }

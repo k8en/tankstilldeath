@@ -51,7 +51,7 @@ public class TestScreen extends AbstractScreen {
     public void initialize(Map<String, Object> parameters) {
         font13x15o = resourcesController.getFont("font_n13x15o");
 
-        playerTank = new Tank(320, 200, MoveDirection.NORTH);
+        playerTank = new Tank(300, 200, MoveDirection.NORTH, 12, 12, 48, 48);
 
         tankController.spawn(320, 50, MoveDirection.SOUTH);
 

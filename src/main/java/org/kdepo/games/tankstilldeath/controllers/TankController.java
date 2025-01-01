@@ -29,7 +29,7 @@ public class TankController {
     }
 
     public void spawn(double x, double y, MoveDirection moveDirection) {
-        tankList.add(new Tank(x, y, moveDirection));
+        tankList.add(new Tank(x, y, moveDirection, 12, 12, 48, 48));
     }
 
     public void update() {

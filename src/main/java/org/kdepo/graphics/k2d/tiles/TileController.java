@@ -1,6 +1,7 @@
 package org.kdepo.graphics.k2d.tiles;
 
 import org.kdepo.graphics.k2d.geometry.Point;
+import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 import org.kdepo.graphics.k2d.utils.FilesUtils;
 import org.kdepo.graphics.k2d.utils.TilesUtils;
@@ -160,6 +161,41 @@ public class TileController {
         return false;
     }
 
+    public boolean hasCollision(Rectangle rectangle) {
+        int tileXTopLeft = (int) (rectangle.getX() / 16);
+        if (tileXTopLeft < 0) {
+            tileXTopLeft = 0;
+        }
+
+        int tileYTopLeft = (int) (rectangle.getY() / 16);
+        if (tileYTopLeft < 0) {
+            tileYTopLeft = 0;
+        }
+
+        int tileXBottomRight = (int) ((rectangle.getX() + rectangle.getWidth()) / 16);
+        if (tileXBottomRight >= 80) {
+            tileXBottomRight = 80;
+        }
+
+        int tileYBottomRight = (int) ((rectangle.getY() + rectangle.getHeight()) / 16);
+        if (tileYBottomRight >= 60) {
+            tileYBottomRight = 60;
+        }
+
+        for (int y = tileYTopLeft; y <= tileYBottomRight; y++) {
+            for (int x = tileXTopLeft; x <= tileXBottomRight; x++) {
+                Tile tile = layerData1[y][x];
+                if (tile != null) {
+                    if (CollisionsChecker.hasCollision(rectangle, tile.getHitBox())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void update() {
 
     }
@@ -179,6 +215,9 @@ public class TileController {
                 for (Tile tile : tiles) {
                     if (tile != null) {
                         g.drawImage(tile.getImage(), (int) tile.getX(), (int) tile.getY(), null);
+
+                        //g.setColor(Color.MAGENTA);
+                        //g.drawRect((int) tile.getHitBox().getX(), (int) tile.getHitBox().getY(), (int) tile.getHitBox().getWidth(), (int) tile.getHitBox().getHeight());
                     }
                 }
             }
