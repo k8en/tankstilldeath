@@ -15,6 +15,7 @@ import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.resources.Resource;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.screens.AbstractScreen;
+import org.kdepo.graphics.k2d.tiles.Tile;
 import org.kdepo.graphics.k2d.tiles.TileController;
 import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 
@@ -82,9 +83,30 @@ public class TestScreen extends AbstractScreen {
 
             if (bullet.isActive()) {
                 Point bulletCenter = bullet.getCenter();
-                if (tileController.hasCollision(bulletCenter)) {
+                Tile tile = tileController.getTile(TileController.LAYER_MIDDLE, bulletCenter.getX(), bulletCenter.getY());
+                if (tile != null && CollisionsChecker.hasCollision(tile.getHitBox(), bulletCenter.getX(), bulletCenter.getY())) {
                     bullet.setActive(false);
                     explosionController.spawn(bulletCenter.getX(), bulletCenter.getY(), "animation_explosion_00");
+
+                    if (tile.getId() == 2) {
+                        if (MoveDirection.NORTH.equals(bullet.getMoveDirection())) {
+                            tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), 3);
+
+                        } else if (MoveDirection.EAST.equals(bullet.getMoveDirection())) {
+                            tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), 4);
+
+                        } else if (MoveDirection.SOUTH.equals(bullet.getMoveDirection())) {
+                            tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), 5);
+
+                        } else if (MoveDirection.WEST.equals(bullet.getMoveDirection())) {
+                            tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), 6);
+
+                        }
+
+                    } else if (tile.getId() == 3 || tile.getId() == 4 || tile.getId() == 5 || tile.getId() == 6) {
+                        tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
+                    }
+
                 }
             }
         }

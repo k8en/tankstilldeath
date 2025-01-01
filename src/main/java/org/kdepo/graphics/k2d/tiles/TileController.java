@@ -79,12 +79,70 @@ public class TileController {
             for (int i = 0; i < layerIdsData[j].length; i++) {
                 TileConfiguration tileConfiguration = tileConfigurationMap.get(layerIdsData[j][i]);
                 if (tileConfiguration != null) {
-                    layerData[j][i] = new Tile(i * 16, j * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
+                    layerData[j][i] = new Tile(
+                            tileConfiguration.getId(),
+                            i,
+                            j,
+                            i * 16,
+                            j * 16,
+                            tileConfiguration.getImage(),
+                            tileConfiguration.getHitBox());
                 }
             }
         }
 
         return layerData;
+    }
+
+    public Tile getTile(int layer, double x, double y) {
+        int tileX = (int) (x / 16);
+        int tileY = (int) (y / 16);
+
+        if (tileX < 0 || tileX >= 80 || tileY < 0 || tileY >= 60) {
+            return null;
+        }
+
+        Tile tile = null;
+        if (TileController.LAYER_BOTTOM == layer) {
+            tile = layerData0[tileY][tileX];
+        } else if (TileController.LAYER_MIDDLE == layer) {
+            tile = layerData1[tileY][tileX];
+        } else if (TileController.LAYER_TOP == layer) {
+            tile = layerData2[tileY][tileX];
+        }
+
+        return tile;
+    }
+
+    public void setTile(int layer, int tileX, int tileY, int tileId) {
+        TileConfiguration tileConfiguration = tileConfigurationMap.get(tileId);
+        Tile tile = new Tile(
+                tileId,
+                tileX,
+                tileY,
+                tileX * 16,
+                tileY * 16,
+                tileConfiguration.getImage(),
+                tileConfiguration.getHitBox()
+        );
+
+        if (TileController.LAYER_BOTTOM == layer) {
+            layerData0[tileY][tileX] = tile;
+        } else if (TileController.LAYER_MIDDLE == layer) {
+            layerData1[tileY][tileX] = tile;
+        } else if (TileController.LAYER_TOP == layer) {
+            layerData2[tileY][tileX] = tile;
+        }
+    }
+
+    public void removeTile(int layer, int tileX, int tileY) {
+        if (TileController.LAYER_BOTTOM == layer) {
+            layerData0[tileY][tileX] = null;
+        } else if (TileController.LAYER_MIDDLE == layer) {
+            layerData1[tileY][tileX] = null;
+        } else if (TileController.LAYER_TOP == layer) {
+            layerData2[tileY][tileX] = null;
+        }
     }
 
     public boolean hasCollision(Point point) {
