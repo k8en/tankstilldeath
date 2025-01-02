@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.model;
 
+import org.kdepo.games.tankstilldeath.controllers.BonusController;
 import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.animations.Animation;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 public class Tank extends Rectangle {
 
+    private BonusController bonusController;
     private TileController tileController;
 
     private MoveDirection moveDirection;
@@ -32,6 +34,7 @@ public class Tank extends Rectangle {
     private final AnimationController animationController;
 
     public Tank(double x, double y, MoveDirection moveDirection, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight) {
+        bonusController = BonusController.getInstance();
         tileController = TileController.getInstance();
 
         this.x = x;
@@ -168,6 +171,14 @@ public class Tank extends Rectangle {
             } else {
                 x = nextX;
                 y = nextY;
+
+                Bonus bonus = bonusController.getBonusAtCollision(hitBox);
+                if (bonus != null) {
+                    // TODO apply bonus effects
+                    //..
+
+                    bonus.setActive(false);
+                }
             }
         }
         animationController.update();

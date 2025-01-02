@@ -1,8 +1,10 @@
 package org.kdepo.games.tankstilldeath.screens;
 
+import org.kdepo.games.tankstilldeath.controllers.BonusController;
 import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
+import org.kdepo.games.tankstilldeath.model.Bonus;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
@@ -27,6 +29,7 @@ public class TestScreen extends AbstractScreen {
 
     private final ResourcesController resourcesController;
 
+    private final BonusController bonusController;
     private final BulletController bulletController;
     private final ExplosionController explosionController;
     private final TankController tankController;
@@ -41,6 +44,7 @@ public class TestScreen extends AbstractScreen {
     public TestScreen() {
         this.name = "test";
         resourcesController = ResourcesController.getInstance();
+        bonusController = BonusController.getInstance();
         bulletController = BulletController.getInstance();
         explosionController = ExplosionController.getInstance();
         tankController = TankController.getInstance();
@@ -58,6 +62,9 @@ public class TestScreen extends AbstractScreen {
         Resource mapResource = resourcesController.getResource("map_test");
         mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
         tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
+
+        bonusController.spawn(500, 500, Bonus.BONUS_ID_STAR);
+        bonusController.spawn(600, 500, Bonus.BONUS_ID_SHIELD);
     }
 
     @Override
@@ -67,6 +74,7 @@ public class TestScreen extends AbstractScreen {
         playerTank.resolveControls(keyHandler);
         playerTank.update();
 
+        bonusController.update();
         bulletController.update();
         explosionController.update();
 
@@ -120,6 +128,7 @@ public class TestScreen extends AbstractScreen {
 
         tankController.render(g);
         playerTank.render(g);
+        bonusController.render(g);
         bulletController.render(g);
         explosionController.render(g);
 
