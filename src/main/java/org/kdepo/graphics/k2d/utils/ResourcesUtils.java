@@ -1,7 +1,6 @@
 package org.kdepo.graphics.k2d.utils;
 
 import org.kdepo.graphics.k2d.resources.Resource;
-import org.kdepo.graphics.k2d.resources.ResourceType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -19,7 +18,7 @@ import java.util.Map;
 public class ResourcesUtils {
 
     public static Map<String, Resource> loadDefinitions(String pathToFile) {
-        System.out.println("Loading resource definitions from " + pathToFile);
+        System.out.println("Loading resources definitions from " + pathToFile);
         Map<String, Resource> result = new HashMap<>();
 
         // Check that path to file is provided
@@ -31,7 +30,7 @@ public class ResourcesUtils {
         // Check for file existence
         File file = new File(pathToFile);
         if (!file.exists() || file.isDirectory()) {
-            System.out.println("Cannot load resource definitions because path to file is not exists or directory: " + pathToFile);
+            System.out.println("Cannot load resources definitions because path to file is not exists or directory: " + pathToFile);
             return result;
         }
 
@@ -71,18 +70,12 @@ public class ResourcesUtils {
 
                         Element resourceElement = (Element) resourceNode;
 
-                        String typeStr = resourceElement.getAttribute("type");
-                        if (typeStr.isEmpty()) {
+                        String type = resourceElement.getAttribute("type");
+                        if (type.isEmpty()) {
                             System.out.println("Resource type not found for " + resourceElement);
                             continue;
                         }
-                        ResourceType type = null;
-                        try {
-                            type = ResourceType.valueOf(typeStr.toUpperCase());
-                        } catch (IllegalArgumentException e) {
-                            System.out.println("Resource type not resolved for " + typeStr.toUpperCase());
-                            continue;
-                        }
+                        type = type.toUpperCase();
 
                         String id = resourceElement.getAttribute("id");
                         if (id.isEmpty()) {
@@ -102,7 +95,7 @@ public class ResourcesUtils {
                         resource.setPath(path);
 
                         result.put(id, resource);
-                        System.out.println("Loaded " + type + " resource as '" + id + "' with path " + path);
+                        System.out.println("Resource loaded " + resource);
                     }
                 }
             }
@@ -110,5 +103,4 @@ public class ResourcesUtils {
 
         return result;
     }
-
 }

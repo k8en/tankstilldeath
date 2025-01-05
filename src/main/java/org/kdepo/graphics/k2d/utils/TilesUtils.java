@@ -93,7 +93,7 @@ public class TilesUtils {
                         );
 
                         result.put(id, tileConfiguration);
-                        System.out.println("Tile configuration loaded: id=" + hitBoxX + ", image='" + imageName + "'");
+                        System.out.println("Tile configuration loaded " + tileConfiguration);
                     }
                 }
             }

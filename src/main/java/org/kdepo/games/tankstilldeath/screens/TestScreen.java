@@ -3,6 +3,7 @@ package org.kdepo.games.tankstilldeath.screens;
 import org.kdepo.games.tankstilldeath.controllers.BonusController;
 import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
+import org.kdepo.games.tankstilldeath.controllers.SpawnSpotController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
 import org.kdepo.games.tankstilldeath.model.Bonus;
 import org.kdepo.games.tankstilldeath.model.Bullet;
@@ -32,6 +33,7 @@ public class TestScreen extends AbstractScreen {
     private final BonusController bonusController;
     private final BulletController bulletController;
     private final ExplosionController explosionController;
+    private final SpawnSpotController spawnSpotController;
     private final TankController tankController;
     private final TileController tileController;
 
@@ -47,21 +49,31 @@ public class TestScreen extends AbstractScreen {
         bonusController = BonusController.getInstance();
         bulletController = BulletController.getInstance();
         explosionController = ExplosionController.getInstance();
+        spawnSpotController = SpawnSpotController.getInstance();
         tankController = TankController.getInstance();
         tileController = TileController.getInstance();
+
+        Resource tileConfigurationResource = resourcesController.getResource("tile_configuration");
+        tileController.loadTilesConfigurations(resourcesController.getPath() + tileConfigurationResource.getPath());
+
+        Resource tankConfigurationResource = resourcesController.getResource("tank_configuration");
+        tankController.loadTanksConfigurations(resourcesController.getPath() + tankConfigurationResource.getPath());
     }
 
     @Override
     public void initialize(Map<String, Object> parameters) {
         font13x15o = resourcesController.getFont("font_n13x15o");
 
-        playerTank = new Tank(300, 200, MoveDirection.NORTH, 12, 12, 48, 48);
-
-        tankController.spawn(320, 50, MoveDirection.SOUTH);
-
         Resource mapResource = resourcesController.getResource("map_test");
         mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
+        spawnSpotController.loadSpawnSpotData(mapData.getPathToFolder() + File.separator + mapData.getFileNameSpawnSpots());
+        tankController.loadTankData(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanks());
         tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
+
+        tankController.spawn(1);
+
+        //playerTank = new Tank(300, 200, MoveDirection.NORTH, 12, 12, 48, 48);
+        playerTank = tankController.prepareTank(0, 1, 500, 600, MoveDirection.NORTH);
 
         bonusController.spawn(500, 500, Bonus.BONUS_ID_STAR);
         bonusController.spawn(600, 500, Bonus.BONUS_ID_SHIELD);
@@ -77,6 +89,7 @@ public class TestScreen extends AbstractScreen {
         bonusController.update();
         bulletController.update();
         explosionController.update();
+        spawnSpotController.update();
 
         for (Bullet bullet : bulletController.getBulletList()) {
             if (bullet.isActive()) {

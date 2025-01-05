@@ -8,7 +8,9 @@ import java.util.Objects;
 public class TileConfiguration {
 
     private final int id;
+
     private final BufferedImage image;
+
     private final Rectangle hitBox;
 
     public TileConfiguration(int id, BufferedImage image, int x, int y, int width, int height) {
@@ -33,7 +35,6 @@ public class TileConfiguration {
     public String toString() {
         return "TileConfiguration{" +
                 "id=" + id +
-                ", image=" + image +
                 ", hitBox=" + hitBox +
                 '}';
     }

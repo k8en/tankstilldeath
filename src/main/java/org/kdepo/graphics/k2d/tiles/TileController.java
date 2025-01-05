@@ -40,9 +40,9 @@ public class TileController {
         tileConfigurationMap = new HashMap<>();
     }
 
-    public void loadConfigurations(String pathToFile) {
+    public void loadTilesConfigurations(String pathToFile) {
         tileConfigurationMap = TilesUtils.loadConfigurations(pathToFile);
-        System.out.println("Loaded tile configurations: " + tileConfigurationMap.size());
+        System.out.println("Loaded tiles configurations: " + tileConfigurationMap.size());
     }
 
     public void loadLayerData(String pathToFile) {

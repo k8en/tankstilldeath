@@ -19,9 +19,13 @@ public class Tank extends Rectangle {
     private BonusController bonusController;
     private TileController tileController;
 
+    private int team;
+
     private MoveDirection moveDirection;
     private boolean isMoving;
     private double movementSpeed;
+
+    private boolean isActive;
 
     private Rectangle hitBox;
     private int hitBoxOffsetX;
@@ -33,10 +37,23 @@ public class Tank extends Rectangle {
 
     private final AnimationController animationController;
 
-    public Tank(double x, double y, MoveDirection moveDirection, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight) {
+    private int armorTypeId;
+
+    private int bulletTypeId;
+    private int bulletOffsetNorthX;
+    private int bulletOffsetNorthY;
+    private int bulletOffsetEastX;
+    private int bulletOffsetEastY;
+    private int bulletOffsetSouthX;
+    private int bulletOffsetSouthY;
+    private int bulletOffsetWestX;
+    private int bulletOffsetWestY;
+
+    public Tank(double x, double y, int team, MoveDirection moveDirection, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight) {
         bonusController = BonusController.getInstance();
         tileController = TileController.getInstance();
 
+        this.team = team;
         this.x = x;
         this.y = y;
         this.moveDirection = moveDirection;
@@ -85,8 +102,90 @@ public class Tank extends Rectangle {
         );
     }
 
+    public Tank(String animationMapName, double centerX, double centerY, int team, MoveDirection moveDirection, double movementSpeed, int bulletTypeId, double reloadingSpeed, int armorTypeId, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletOffsetNorthX, int bulletOffsetNorthY, int bulletOffsetEastX, int bulletOffsetEastY, int bulletOffsetSouthX, int bulletOffsetSouthY, int bulletOffsetWestX, int bulletOffsetWestY) {
+        bonusController = BonusController.getInstance();
+        tileController = TileController.getInstance();
+        ResourcesController resourcesController = ResourcesController.getInstance();
+
+        // Setup generic parameters
+        this.team = team;
+        this.movementSpeed = movementSpeed;
+        isMoving = false;
+        this.armorTypeId = armorTypeId;
+        isActive = false;
+
+        // Setup animations
+        Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
+
+        Animation activeAnimation = null;
+        if (MoveDirection.NORTH.equals(moveDirection)) {
+            activeAnimation = animationMap.get("idle_north");
+        } else if (MoveDirection.EAST.equals(moveDirection)) {
+            activeAnimation = animationMap.get("idle_east");
+        } else if (MoveDirection.SOUTH.equals(moveDirection)) {
+            activeAnimation = animationMap.get("idle_south");
+        } else if (MoveDirection.WEST.equals(moveDirection)) {
+            activeAnimation = animationMap.get("idle_west");
+        }
+
+        if (activeAnimation == null) {
+            throw new RuntimeException("Start animation not resolved!");
+        }
+
+        animationController = new AnimationController(
+                animationMap,
+                activeAnimation,
+                AnimationPlayDirection.FORWARD,
+                AnimationPlayMode.LOOP
+        );
+
+        // Setup geometry parameters
+        this.width = animationController.getActiveFrame().getImage().getWidth();
+        this.height = animationController.getActiveFrame().getImage().getHeight();
+        this.x = centerX - width / 2;
+        this.y = centerY - height / 2;
+
+        this.hitBoxOffsetX = hitBoxOffsetX;
+        this.hitBoxOffsetY = hitBoxOffsetY;
+        hitBox = new Rectangle(
+                this.x + this.hitBoxOffsetX,
+                this.y + this.hitBoxOffsetY,
+                hitBoxWidth,
+                hitBoxHeight
+        );
+
+        // Setup weapon parameters
+        this.bulletTypeId = bulletTypeId;
+        isReadyToShot = true;
+        reloadingProgress = 100;
+        this.reloadingSpeed = reloadingSpeed;
+        this.bulletOffsetNorthX = bulletOffsetNorthX;
+        this.bulletOffsetNorthY = bulletOffsetNorthY;
+        this.bulletOffsetEastX = bulletOffsetEastX;
+        this.bulletOffsetEastY = bulletOffsetEastY;
+        this.bulletOffsetSouthX = bulletOffsetSouthX;
+        this.bulletOffsetSouthY = bulletOffsetSouthY;
+        this.bulletOffsetWestX = bulletOffsetWestX;
+        this.bulletOffsetWestY = bulletOffsetWestY;
+    }
+
+    @Override
+    public void setCenter(double cx, double cy) {
+        super.setCenter(cx, cy);
+        hitBox.setX(this.x + this.hitBoxOffsetX);
+        hitBox.setY(this.y + this.hitBoxOffsetY);
+    }
+
     public Rectangle getHitBox() {
         return hitBox;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public void resolveControls(KeyHandler keyHandler) {
@@ -136,17 +235,17 @@ public class Tank extends Rectangle {
                 int bulletOffsetX = 0;
                 int bulletOffsetY = 0;
                 if (MoveDirection.NORTH.equals(moveDirection)) {
-                    bulletOffsetX = 33;
-                    bulletOffsetY = -2;
+                    bulletOffsetX = bulletOffsetNorthX;
+                    bulletOffsetY = bulletOffsetNorthY;
                 } else if (MoveDirection.EAST.equals(moveDirection)) {
-                    bulletOffsetX = 68;
-                    bulletOffsetY = 33;
+                    bulletOffsetX = bulletOffsetEastX;
+                    bulletOffsetY = bulletOffsetEastY;
                 } else if (MoveDirection.SOUTH.equals(moveDirection)) {
-                    bulletOffsetX = 33;
-                    bulletOffsetY = 68;
+                    bulletOffsetX = bulletOffsetSouthX;
+                    bulletOffsetY = bulletOffsetSouthY;
                 } else if (MoveDirection.WEST.equals(moveDirection)) {
-                    bulletOffsetX = -2;
-                    bulletOffsetY = 33;
+                    bulletOffsetX = bulletOffsetWestX;
+                    bulletOffsetY = bulletOffsetWestY;
                 }
 
                 BulletController.getInstance().spawn(x + bulletOffsetX, y + bulletOffsetY, moveDirection);
@@ -154,7 +253,6 @@ public class Tank extends Rectangle {
                 reloadingProgress = 0;
             }
         }
-
     }
 
     public void update() {
@@ -202,5 +300,4 @@ public class Tank extends Rectangle {
         //g.setColor(Color.MAGENTA);
         //g.drawRect((int) hitBox.getX(), (int) hitBox.getY(), (int) hitBox.getWidth(), (int) hitBox.getHeight());
     }
-
 }

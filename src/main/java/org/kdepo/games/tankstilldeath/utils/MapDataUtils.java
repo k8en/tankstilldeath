@@ -102,6 +102,22 @@ public class MapDataUtils {
                             }
                             mapData.setFileNameLayer2(fileName);
 
+                        } else if (name.equals("spawn_spots")) {
+                            String fileName = propertyElement.getAttribute("file");
+                            if (fileName.isEmpty()) {
+                                System.out.println("Spawn spots file name not found for " + propertyElement);
+                                continue;
+                            }
+                            mapData.setFileNameSpawnSpots(fileName);
+
+                        } else if (name.equals("tanks")) {
+                            String fileName = propertyElement.getAttribute("file");
+                            if (fileName.isEmpty()) {
+                                System.out.println("Tanks file name not found for " + propertyElement);
+                                continue;
+                            }
+                            mapData.setFileNameTanks(fileName);
+
                         }
                     }
                 }

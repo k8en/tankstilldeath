@@ -10,6 +10,10 @@ public class MapData {
 
     private String fileNameLayer2;
 
+    private String fileNameSpawnSpots;
+
+    private String fileNameTanks;
+
     public String getPathToFolder() {
         return pathToFolder;
     }
@@ -42,6 +46,22 @@ public class MapData {
         this.fileNameLayer2 = fileNameLayer2;
     }
 
+    public String getFileNameSpawnSpots() {
+        return fileNameSpawnSpots;
+    }
+
+    public void setFileNameSpawnSpots(String fileNameSpawnSpots) {
+        this.fileNameSpawnSpots = fileNameSpawnSpots;
+    }
+
+    public String getFileNameTanks() {
+        return fileNameTanks;
+    }
+
+    public void setFileNameTanks(String fileNameTanks) {
+        this.fileNameTanks = fileNameTanks;
+    }
+
     @Override
     public String toString() {
         return "MapData{" +
@@ -49,6 +69,8 @@ public class MapData {
                 ", fileNameLayer0='" + fileNameLayer0 + '\'' +
                 ", fileNameLayer1='" + fileNameLayer1 + '\'' +
                 ", fileNameLayer2='" + fileNameLayer2 + '\'' +
+                ", fileNameSpawnSpots='" + fileNameSpawnSpots + '\'' +
+                ", fileNameTanks='" + fileNameTanks + '\'' +
                 '}';
     }
 }
