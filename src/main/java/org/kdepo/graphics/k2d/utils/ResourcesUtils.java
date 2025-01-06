@@ -59,10 +59,10 @@ public class ResourcesUtils {
         NodeList list = xmlDocument.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
 
-            Node childNode = list.item(i);
-            if ("resources".equals(childNode.getNodeName())) {
+            Node resourcesNode = list.item(i);
+            if ("resources".equals(resourcesNode.getNodeName())) {
 
-                NodeList resourcesNodesList = childNode.getChildNodes();
+                NodeList resourcesNodesList = resourcesNode.getChildNodes();
                 for (int j = 0; j < resourcesNodesList.getLength(); j++) {
 
                     Node resourceNode = resourcesNodesList.item(j);

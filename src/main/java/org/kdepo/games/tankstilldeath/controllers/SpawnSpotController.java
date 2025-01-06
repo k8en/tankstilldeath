@@ -1,6 +1,7 @@
 package org.kdepo.games.tankstilldeath.controllers;
 
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
+import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -76,20 +77,20 @@ public class SpawnSpotController {
         NodeList list = xmlDocument.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
 
-            Node childNode = list.item(i);
-            if ("spawn".equals(childNode.getNodeName())) {
+            Node spawnSpotsNode = list.item(i);
+            if ("spawn_spots".equals(spawnSpotsNode.getNodeName())) {
 
-                NodeList spawnNodesList = childNode.getChildNodes();
-                for (int j = 0; j < spawnNodesList.getLength(); j++) {
+                NodeList spawnSpotsNodesList = spawnSpotsNode.getChildNodes();
+                for (int j = 0; j < spawnSpotsNodesList.getLength(); j++) {
 
-                    Node spotNode = spawnNodesList.item(j);
-                    if ("spot".equals(spotNode.getNodeName())) {
+                    Node spawnSpotNode = spawnSpotsNodesList.item(j);
+                    if ("spawn_spot".equals(spawnSpotNode.getNodeName())) {
 
-                        Element spotElement = (Element) spotNode;
+                        Element spotElement = (Element) spawnSpotNode;
 
-                        int x = resolveIntAttribute(spotElement, "x");
-                        int y = resolveIntAttribute(spotElement, "y");
-                        int team = resolveIntAttribute(spotElement, "team");
+                        int x = DomUtils.resolveIntAttribute(spotElement, "x");
+                        int y = DomUtils.resolveIntAttribute(spotElement, "y");
+                        int team = DomUtils.resolveIntAttribute(spotElement, "team");
 
                         SpawnSpot spawnSpot = new SpawnSpot(x, y, team);
                         spawnSpotList.add(spawnSpot);
@@ -97,20 +98,6 @@ public class SpawnSpotController {
                 }
             }
         }
-    }
-
-    private int resolveIntAttribute(Element element, String attributeName) {
-        String valueStr = element.getAttribute(attributeName);
-        if (valueStr.isEmpty()) {
-            System.out.println("Spot '" + attributeName + "' not found for " + element);
-        }
-        int value = -1;
-        try {
-            value = Integer.parseInt(valueStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Spot '" + attributeName + "' not resolved for " + valueStr);
-        }
-        return value;
     }
 
     public SpawnSpot getAvailableSpawnSpot(int team) {
@@ -125,10 +112,9 @@ public class SpawnSpotController {
     public void update() {
         for (SpawnSpot spawnSpot : spawnSpotList) {
             if (spawnSpot.isActive()) {
-
+                spawnSpot.update();
             }
         }
-
     }
 
     public void render(Graphics2D g) {

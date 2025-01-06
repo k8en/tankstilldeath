@@ -5,6 +5,7 @@ import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
 import org.kdepo.games.tankstilldeath.model.TankConfiguration;
 import org.kdepo.graphics.k2d.geometry.Point;
+import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -92,35 +93,35 @@ public class TankController {
         NodeList list = xmlDocument.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
 
-            Node tanksNode = list.item(i);
-            if ("tanks".equals(tanksNode.getNodeName())) {
+            Node tanksConfigurationsNode = list.item(i);
+            if ("tanks_configurations".equals(tanksConfigurationsNode.getNodeName())) {
 
-                NodeList tanksNodesList = tanksNode.getChildNodes();
-                for (int j = 0; j < tanksNodesList.getLength(); j++) {
+                NodeList tanksConfigurationsNodesList = tanksConfigurationsNode.getChildNodes();
+                for (int j = 0; j < tanksConfigurationsNodesList.getLength(); j++) {
 
-                    Node tankNode = tanksNodesList.item(j);
-                    if ("tank".equals(tankNode.getNodeName())) {
+                    Node tankConfigurationNode = tanksConfigurationsNodesList.item(j);
+                    if ("tank_configuration".equals(tankConfigurationNode.getNodeName())) {
 
-                        Element tankElement = (Element) tankNode;
+                        Element tankConfigurationElement = (Element) tankConfigurationNode;
 
-                        int id = resolveIntAttribute(tankElement, "id");
-                        String animationsName = resolveStringAttribute(tankElement, "animations");
-                        double movementSpeed = resolveDoubleAttribute(tankElement, "movement_speed");
-                        double reloadingSpeed = resolveDoubleAttribute(tankElement, "reloading_speed");
-                        int hitBoxOffsetX = resolveIntAttribute(tankElement, "hit_box_offset_x");
-                        int hitBoxOffsetY = resolveIntAttribute(tankElement, "hit_box_offset_y");
-                        int hitBoxWidth = resolveIntAttribute(tankElement, "hit_box_width");
-                        int hitBoxHeight = resolveIntAttribute(tankElement, "hit_box_height");
-                        int bulletTypeId = resolveIntAttribute(tankElement, "bullet_type_id");
-                        int bulletOffsetNorthX = resolveIntAttribute(tankElement, "bullet_offset_north_x");
-                        int bulletOffsetNorthY = resolveIntAttribute(tankElement, "bullet_offset_north_y");
-                        int bulletOffsetEastX = resolveIntAttribute(tankElement, "bullet_offset_east_x");
-                        int bulletOffsetEastY = resolveIntAttribute(tankElement, "bullet_offset_east_y");
-                        int bulletOffsetSouthX = resolveIntAttribute(tankElement, "bullet_offset_south_x");
-                        int bulletOffsetSouthY = resolveIntAttribute(tankElement, "bullet_offset_south_y");
-                        int bulletOffsetWestX = resolveIntAttribute(tankElement, "bullet_offset_west_x");
-                        int bulletOffsetWestY = resolveIntAttribute(tankElement, "bullet_offset_west_y");
-                        int armorTypeId = resolveIntAttribute(tankElement, "armor_type_id");
+                        int id = DomUtils.resolveIntAttribute(tankConfigurationElement, "id");
+                        String animationsName = DomUtils.resolveStringAttribute(tankConfigurationElement, "animations");
+                        double movementSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "movement_speed");
+                        double reloadingSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "reloading_speed");
+                        int hitBoxOffsetX = DomUtils.resolveIntAttribute(tankConfigurationElement, "hit_box_offset_x");
+                        int hitBoxOffsetY = DomUtils.resolveIntAttribute(tankConfigurationElement, "hit_box_offset_y");
+                        int hitBoxWidth = DomUtils.resolveIntAttribute(tankConfigurationElement, "hit_box_width");
+                        int hitBoxHeight = DomUtils.resolveIntAttribute(tankConfigurationElement, "hit_box_height");
+                        int bulletTypeId = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_type_id");
+                        int bulletOffsetNorthX = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_north_x");
+                        int bulletOffsetNorthY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_north_y");
+                        int bulletOffsetEastX = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_east_x");
+                        int bulletOffsetEastY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_east_y");
+                        int bulletOffsetSouthX = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_south_x");
+                        int bulletOffsetSouthY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_south_y");
+                        int bulletOffsetWestX = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_west_x");
+                        int bulletOffsetWestY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_west_y");
+                        int armorTypeId = DomUtils.resolveIntAttribute(tankConfigurationElement, "armor_type_id");
 
                         TankConfiguration tankConfiguration = new TankConfiguration(
                                 id,
@@ -209,8 +210,8 @@ public class TankController {
 
                         Element tankElement = (Element) tankNode;
 
-                        int id = resolveIntAttribute(tankElement, "id");
-                        int team = resolveIntAttribute(tankElement, "team");
+                        int id = DomUtils.resolveIntAttribute(tankElement, "id");
+                        int team = DomUtils.resolveIntAttribute(tankElement, "team");
 
                         Tank tank = prepareTank(id, team, 0, 0, MoveDirection.NORTH);
                         tankList.add(tank);
@@ -266,42 +267,6 @@ public class TankController {
                 tankConfiguration.getBulletOffsetXSouth(), tankConfiguration.getBulletOffsetYSouth(),
                 tankConfiguration.getBulletOffsetXWest(), tankConfiguration.getBulletOffsetYWest()
         );
-    }
-
-    private static String resolveStringAttribute(Element element, String attributeName) {
-        String value = element.getAttribute(attributeName);
-        if (value.isEmpty()) {
-            System.out.println("Tank '" + attributeName + "' not found for " + element);
-        }
-        return value;
-    }
-
-    private int resolveIntAttribute(Element element, String attributeName) {
-        String valueStr = element.getAttribute(attributeName);
-        if (valueStr.isEmpty()) {
-            System.out.println("Tank '" + attributeName + "' not found for " + element);
-        }
-        int value = -1;
-        try {
-            value = Integer.parseInt(valueStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Tank '" + attributeName + "' not resolved for " + valueStr);
-        }
-        return value;
-    }
-
-    private double resolveDoubleAttribute(Element element, String attributeName) {
-        String valueStr = element.getAttribute(attributeName);
-        if (valueStr.isEmpty()) {
-            System.out.println("Tank '" + attributeName + "' not found for " + element);
-        }
-        double value = -1;
-        try {
-            value = Double.parseDouble(valueStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Tank '" + attributeName + "' not resolved for " + valueStr);
-        }
-        return value;
     }
 
     public void update() {

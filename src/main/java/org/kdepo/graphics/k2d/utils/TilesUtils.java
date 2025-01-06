@@ -63,23 +63,23 @@ public class TilesUtils {
         NodeList list = xmlDocument.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
 
-            Node childNode = list.item(i);
-            if ("tiles".equals(childNode.getNodeName())) {
+            Node tilesConfigurationsNode = list.item(i);
+            if ("tiles_configurations".equals(tilesConfigurationsNode.getNodeName())) {
 
-                NodeList resourcesNodesList = childNode.getChildNodes();
-                for (int j = 0; j < resourcesNodesList.getLength(); j++) {
+                NodeList tilesConfigurationsNodesList = tilesConfigurationsNode.getChildNodes();
+                for (int j = 0; j < tilesConfigurationsNodesList.getLength(); j++) {
 
-                    Node resourceNode = resourcesNodesList.item(j);
-                    if ("tile".equals(resourceNode.getNodeName())) {
+                    Node tileConfigurationNode = tilesConfigurationsNodesList.item(j);
+                    if ("tile_configuration".equals(tileConfigurationNode.getNodeName())) {
 
-                        Element tileElement = (Element) resourceNode;
+                        Element tileConfigurationElement = (Element) tileConfigurationNode;
 
-                        int id = resolveIntAttribute(tileElement, "id");
-                        String imageName = resolveStringAttribute(tileElement, "image");
-                        int hitBoxX = resolveIntAttribute(tileElement, "hit_box_x");
-                        int hitBoxY = resolveIntAttribute(tileElement, "hit_box_y");
-                        int hitBoxWidth = resolveIntAttribute(tileElement, "hit_box_width");
-                        int hitBoxHeight = resolveIntAttribute(tileElement, "hit_box_height");
+                        int id = DomUtils.resolveIntAttribute(tileConfigurationElement, "id");
+                        String imageName = DomUtils.resolveStringAttribute(tileConfigurationElement, "image");
+                        int hitBoxX = DomUtils.resolveIntAttribute(tileConfigurationElement, "hit_box_x");
+                        int hitBoxY = DomUtils.resolveIntAttribute(tileConfigurationElement, "hit_box_y");
+                        int hitBoxWidth = DomUtils.resolveIntAttribute(tileConfigurationElement, "hit_box_width");
+                        int hitBoxHeight = DomUtils.resolveIntAttribute(tileConfigurationElement, "hit_box_height");
 
                         BufferedImage image = resourcesController.getImage(imageName);
 
@@ -101,27 +101,4 @@ public class TilesUtils {
 
         return result;
     }
-
-    private static int resolveIntAttribute(Element element, String attributeName) {
-        String valueStr = element.getAttribute(attributeName);
-        if (valueStr.isEmpty()) {
-            System.out.println("Tile '" + attributeName + "' not found for " + element);
-        }
-        int value = -1;
-        try {
-            value = Integer.parseInt(valueStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Tile '" + attributeName + "' not resolved for " + valueStr);
-        }
-        return value;
-    }
-
-    private static String resolveStringAttribute(Element element, String attributeName) {
-        String value = element.getAttribute(attributeName);
-        if (value.isEmpty()) {
-            System.out.println("Tile '" + attributeName + "' not found for " + element);
-        }
-        return value;
-    }
-
 }
