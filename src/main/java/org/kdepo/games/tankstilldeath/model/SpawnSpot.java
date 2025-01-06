@@ -10,13 +10,15 @@ public class SpawnSpot extends Rectangle {
 
     private int team;
 
-    public SpawnSpot(int x, int y, int team) {
+    private final MoveDirection moveDirection;
+
+    public SpawnSpot(int x, int y, int team, MoveDirection moveDirection) {
         this.x = x;
         this.y = y;
         this.team = team;
+        this.moveDirection = moveDirection;
 
         isActive = false;
-        timer = System.currentTimeMillis() + 10000;
     }
 
     public boolean isActive() {
@@ -31,9 +33,27 @@ public class SpawnSpot extends Rectangle {
         return team;
     }
 
+    public MoveDirection getMoveDirection() {
+        return moveDirection;
+    }
+
+    public void restartTimer() {
+        timer = System.currentTimeMillis() + 10000;
+    }
+
     public void update() {
         if (System.currentTimeMillis() > timer) {
             isActive = false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SpawnSpot{" +
+                "isActive=" + isActive +
+                ", timer=" + timer +
+                ", team=" + team +
+                ", moveDirection=" + moveDirection +
+                '}';
     }
 }

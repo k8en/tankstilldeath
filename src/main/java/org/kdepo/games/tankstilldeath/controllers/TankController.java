@@ -29,9 +29,9 @@ public class TankController {
 
     private final Map<Integer, TankConfiguration> tankConfigurationMap;
 
-    private final List<Tank> tankList;
-    private int activeTanksCurrent;
-    private int activeTanksMax;
+    private final List<Tank> activeTanksList;
+    private final List<Tank> tanksToSpawnList;
+    private int activeTanksLimit;
 
     private final SpawnSpotController spawnSpotController;
 
@@ -44,8 +44,8 @@ public class TankController {
 
     private TankController() {
         tankConfigurationMap = new HashMap<>();
-        tankList = new ArrayList<>();
-        activeTanksCurrent = 0;
+        activeTanksList = new ArrayList<>();
+        tanksToSpawnList = new ArrayList<>();
 
         spawnSpotController = SpawnSpotController.getInstance();
     }
@@ -155,19 +155,19 @@ public class TankController {
         System.out.println("Loaded tanks configurations: " + tankConfigurationMap.size());
     }
 
-    public void loadTankData(String pathToFile) {
-        System.out.println("Loading tanks data from " + pathToFile);
+    public void loadTanksToSpawnData(String pathToFile) {
+        System.out.println("Loading tanks to spawn data from " + pathToFile);
 
         // Check that path to file is provided
         if (pathToFile == null || pathToFile.isEmpty()) {
-            System.out.println("Cannot load tanks data because path to file is not provided");
+            System.out.println("Cannot load tanks to spawn data because path to file is not provided");
             return;
         }
 
         // Check for file existence
         File file = new File(pathToFile);
         if (!file.exists() || file.isDirectory()) {
-            System.out.println("Cannot load tanks data because path to file is not exists or directory: " + pathToFile);
+            System.out.println("Cannot load tanks to spawn data because path to file is not exists or directory: " + pathToFile);
             return;
         }
 
@@ -177,7 +177,7 @@ public class TankController {
         try {
             db = dbf.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            System.out.println("Cannot load tanks data from file: " + pathToFile);
+            System.out.println("Cannot load tanks to spawn data from file: " + pathToFile);
             e.printStackTrace();
             return;
         }
@@ -187,13 +187,13 @@ public class TankController {
         try {
             xmlDocument = db.parse(pathToFile);
         } catch (IOException | SAXException e) {
-            System.out.println("Cannot load tanks data from file: " + pathToFile);
+            System.out.println("Cannot load tanks to spawn data from file: " + pathToFile);
             e.printStackTrace();
             return;
         }
 
-        tankList.clear();
-        activeTanksCurrent = 0;
+        activeTanksList.clear();
+        tanksToSpawnList.clear();
 
         // Travers through the document
         NodeList list = xmlDocument.getChildNodes();
@@ -214,39 +214,44 @@ public class TankController {
                         int team = DomUtils.resolveIntAttribute(tankElement, "team");
 
                         Tank tank = prepareTank(id, team, 0, 0, MoveDirection.NORTH);
-                        tankList.add(tank);
+                        tanksToSpawnList.add(tank);
                     }
                 }
             }
         }
     }
 
-    public List<Tank> getTankList() {
-        return tankList;
+    public List<Tank> getActiveTanksList() {
+        return activeTanksList;
+    }
+
+    public int getActiveTanksLimit() {
+        return activeTanksLimit;
+    }
+
+    public void setActiveTanksLimit(int activeTanksLimit) {
+        this.activeTanksLimit = activeTanksLimit;
     }
 
     public void spawn(int team) {
-        //tankList.add(new Tank(x, y, moveDirection, 12, 12, 48, 48));
-        Tank tankToSpawn = null;
-        for (Tank tank : tankList) {
-            if (!tank.isActive()) {
-                tankToSpawn = tank;
-                break;
-            }
-        }
-
-        if (tankToSpawn == null) {
+        if (tanksToSpawnList.isEmpty()) {
             return;
         }
+
+        Tank tankToSpawn = tanksToSpawnList.get(0);
 
         SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(team);
         Point spawnPointCenter = spawnSpot.getCenter();
 
         tankToSpawn.setCenter(spawnPointCenter.getX(), spawnPointCenter.getY());
+        tankToSpawn.setMoveDirection(spawnSpot.getMoveDirection());
         tankToSpawn.setActive(true);
 
         spawnSpot.setActive(true);
-        // TODO set timer
+        spawnSpot.restartTimer();
+
+        activeTanksList.add(tankToSpawn);
+        tanksToSpawnList.remove(0);
     }
 
     public Tank prepareTank(int id, int team, double x, double y, MoveDirection moveDirection) {
@@ -270,7 +275,7 @@ public class TankController {
     }
 
     public void update() {
-        for (Tank tank : tankList) {
+        for (Tank tank : activeTanksList) {
             if (tank.isActive()) {
                 tank.update();
             }
@@ -278,10 +283,16 @@ public class TankController {
     }
 
     public void render(Graphics2D g) {
-        for (Tank tank : tankList) {
+        for (Tank tank : activeTanksList) {
             if (tank.isActive()) {
                 tank.render(g);
             }
         }
+    }
+
+    public boolean canSpawn() {
+        return activeTanksList.size() <= activeTanksLimit
+                && spawnSpotController.getAvailableSpawnSpot(1) != null
+                && !tanksToSpawnList.isEmpty();
     }
 }

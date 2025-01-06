@@ -1,6 +1,7 @@
 package org.kdepo.games.tankstilldeath.utils;
 
 import org.kdepo.games.tankstilldeath.model.MapData;
+import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -118,6 +119,9 @@ public class MapDataUtils {
                             }
                             mapData.setFileNameTanks(fileName);
 
+                        } else if (name.equals("active_tanks_limit")) {
+                            int activeTanksLimit = DomUtils.resolveIntAttribute(propertyElement, "value");
+                            mapData.setActiveTanksLimit(activeTanksLimit);
                         }
                     }
                 }

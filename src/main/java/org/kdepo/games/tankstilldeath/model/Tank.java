@@ -16,8 +16,8 @@ import java.util.Map;
 
 public class Tank extends Rectangle {
 
-    private BonusController bonusController;
-    private TileController tileController;
+    private final BonusController bonusController;
+    private final TileController tileController;
 
     private int team;
 
@@ -48,59 +48,6 @@ public class Tank extends Rectangle {
     private int bulletOffsetSouthY;
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
-
-    public Tank(double x, double y, int team, MoveDirection moveDirection, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight) {
-        bonusController = BonusController.getInstance();
-        tileController = TileController.getInstance();
-
-        this.team = team;
-        this.x = x;
-        this.y = y;
-        this.moveDirection = moveDirection;
-        isMoving = false;
-        movementSpeed = 2.5d;
-
-        isReadyToShot = true;
-        reloadingProgress = 100;
-        reloadingSpeed = 2.5d;
-
-        ResourcesController resourcesController = ResourcesController.getInstance();
-        Map<String, Animation> animationMap = resourcesController.getAnimations("animation_tank_00");
-
-        Animation activeAnimation = null;
-        if (MoveDirection.NORTH.equals(moveDirection)) {
-            activeAnimation = animationMap.get("idle_north");
-        } else if (MoveDirection.EAST.equals(moveDirection)) {
-            activeAnimation = animationMap.get("idle_east");
-        } else if (MoveDirection.SOUTH.equals(moveDirection)) {
-            activeAnimation = animationMap.get("idle_south");
-        } else if (MoveDirection.WEST.equals(moveDirection)) {
-            activeAnimation = animationMap.get("idle_west");
-        }
-
-        if (activeAnimation == null) {
-            throw new RuntimeException("Start animation not resolved!");
-        }
-
-        animationController = new AnimationController(
-                animationMap,
-                activeAnimation,
-                AnimationPlayDirection.FORWARD,
-                AnimationPlayMode.LOOP
-        );
-
-        this.width = animationController.getActiveFrame().getImage().getWidth();
-        this.height = animationController.getActiveFrame().getImage().getHeight();
-
-        this.hitBoxOffsetX = hitBoxOffsetX;
-        this.hitBoxOffsetY = hitBoxOffsetY;
-        hitBox = new Rectangle(
-                this.x + this.hitBoxOffsetX,
-                this.y + this.hitBoxOffsetY,
-                hitBoxWidth,
-                hitBoxHeight
-        );
-    }
 
     public Tank(String animationMapName, double centerX, double centerY, int team, MoveDirection moveDirection, double movementSpeed, int bulletTypeId, double reloadingSpeed, int armorTypeId, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletOffsetNorthX, int bulletOffsetNorthY, int bulletOffsetEastX, int bulletOffsetEastY, int bulletOffsetSouthX, int bulletOffsetSouthY, int bulletOffsetWestX, int bulletOffsetWestY) {
         bonusController = BonusController.getInstance();
@@ -167,6 +114,20 @@ public class Tank extends Rectangle {
         this.bulletOffsetSouthY = bulletOffsetSouthY;
         this.bulletOffsetWestX = bulletOffsetWestX;
         this.bulletOffsetWestY = bulletOffsetWestY;
+    }
+
+    public void setMoveDirection(MoveDirection moveDirection) {
+        this.moveDirection = moveDirection;
+
+        if (MoveDirection.NORTH.equals(moveDirection)) {
+            animationController.switchToAnimation("idle_north");
+        } else if (MoveDirection.EAST.equals(moveDirection)) {
+            animationController.switchToAnimation("idle_east");
+        } else if (MoveDirection.SOUTH.equals(moveDirection)) {
+            animationController.switchToAnimation("idle_south");
+        } else if (MoveDirection.WEST.equals(moveDirection)) {
+            animationController.switchToAnimation("idle_west");
+        }
     }
 
     @Override

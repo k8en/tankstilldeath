@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.model;
 
+import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
@@ -7,10 +8,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class Bonus extends Rectangle {
-
-    public static final int BONUS_ID_STAR = 0;
-
-    public static final int BONUS_ID_SHIELD = 1;
 
     private final ResourcesController resourcesController;
 
@@ -36,10 +33,10 @@ public class Bonus extends Rectangle {
         this.y = y;
         this.id = id;
 
-        if (Bonus.BONUS_ID_STAR == id) {
+        if (Constants.Bonuses.STAR_ID == id) {
             image = resourcesController.getImage("image_bonus_0");
 
-        } else if (Bonus.BONUS_ID_SHIELD == id) {
+        } else if (Constants.Bonuses.SHIELD_ID == id) {
             image = resourcesController.getImage("image_bonus_1");
 
         }

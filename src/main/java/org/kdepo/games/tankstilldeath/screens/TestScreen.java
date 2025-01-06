@@ -1,11 +1,11 @@
 package org.kdepo.games.tankstilldeath.screens;
 
+import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.games.tankstilldeath.controllers.BonusController;
 import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
 import org.kdepo.games.tankstilldeath.controllers.SpawnSpotController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
-import org.kdepo.games.tankstilldeath.model.Bonus;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
@@ -24,6 +24,7 @@ import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ListIterator;
 import java.util.Map;
 
 public class TestScreen extends AbstractScreen {
@@ -67,21 +68,24 @@ public class TestScreen extends AbstractScreen {
         Resource mapResource = resourcesController.getResource("map_test");
         mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
         spawnSpotController.loadSpawnSpotData(mapData.getPathToFolder() + File.separator + mapData.getFileNameSpawnSpots());
-        tankController.loadTankData(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanks());
+        tankController.loadTanksToSpawnData(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanks());
+        tankController.setActiveTanksLimit(mapData.getActiveTanksLimit());
         tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
 
-        tankController.spawn(1);
+        //tankController.spawn(1);
 
-        //playerTank = new Tank(300, 200, MoveDirection.NORTH, 12, 12, 48, 48);
         playerTank = tankController.prepareTank(0, 1, 500, 600, MoveDirection.NORTH);
 
-        bonusController.spawn(500, 500, Bonus.BONUS_ID_STAR);
-        bonusController.spawn(600, 500, Bonus.BONUS_ID_SHIELD);
+        bonusController.spawn(500, 500, Constants.Bonuses.STAR_ID);
+        bonusController.spawn(600, 500, Constants.Bonuses.SHIELD_ID);
     }
 
     @Override
     public void update(KeyHandler keyHandler, MouseHandler mouseHandler) {
         tankController.update();
+        if (tankController.canSpawn()) {
+            tankController.spawn(1);
+        }
 
         playerTank.resolveControls(keyHandler);
         playerTank.update();
@@ -93,11 +97,14 @@ public class TestScreen extends AbstractScreen {
 
         for (Bullet bullet : bulletController.getBulletList()) {
             if (bullet.isActive()) {
-                for (Tank tank : tankController.getTankList()) {
+                ListIterator<Tank> it = tankController.getActiveTanksList().listIterator();
+                while (it.hasNext()) {
+                    Tank tank = it.next();
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
                         Point tankCenter = tank.getCenter();
                         explosionController.spawn(tankCenter.getX(), tankCenter.getY(), "animation_explosion_01");
+                        it.remove();
                     }
                 }
             }
@@ -155,5 +162,4 @@ public class TestScreen extends AbstractScreen {
         font13x15o = null;
         playerTank = null;
     }
-
 }

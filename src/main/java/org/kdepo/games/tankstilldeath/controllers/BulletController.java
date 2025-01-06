@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.controllers;
 
+import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 
@@ -52,7 +53,7 @@ public class BulletController {
     public void update() {
         for (Bullet bullet : bulletList) {
             if (bullet.isActive()) {
-                if (bullet.getX() < 0 || bullet.getX() > 1280 || bullet.getY() < 0 || bullet.getY() > 916) {
+                if (bullet.getX() < 0 || bullet.getX() > Constants.SCREEN_WIDTH || bullet.getY() < 0 || bullet.getY() > Constants.SCREEN_HEIGHT) {
                     bullet.setActive(false);
                     continue;
                 }

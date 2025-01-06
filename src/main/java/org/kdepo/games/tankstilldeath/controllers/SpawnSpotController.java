@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.controllers;
 
+import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
@@ -86,13 +87,14 @@ public class SpawnSpotController {
                     Node spawnSpotNode = spawnSpotsNodesList.item(j);
                     if ("spawn_spot".equals(spawnSpotNode.getNodeName())) {
 
-                        Element spotElement = (Element) spawnSpotNode;
+                        Element spawnSpotElement = (Element) spawnSpotNode;
 
-                        int x = DomUtils.resolveIntAttribute(spotElement, "x");
-                        int y = DomUtils.resolveIntAttribute(spotElement, "y");
-                        int team = DomUtils.resolveIntAttribute(spotElement, "team");
+                        int x = DomUtils.resolveIntAttribute(spawnSpotElement, "x");
+                        int y = DomUtils.resolveIntAttribute(spawnSpotElement, "y");
+                        int team = DomUtils.resolveIntAttribute(spawnSpotElement, "team");
+                        MoveDirection moveDirection = MoveDirection.valueOf(DomUtils.resolveStringAttribute(spawnSpotElement, "move_direction").toUpperCase());
 
-                        SpawnSpot spawnSpot = new SpawnSpot(x, y, team);
+                        SpawnSpot spawnSpot = new SpawnSpot(x, y, team, moveDirection);
                         spawnSpotList.add(spawnSpot);
                     }
                 }

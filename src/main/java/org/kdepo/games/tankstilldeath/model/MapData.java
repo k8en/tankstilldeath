@@ -14,6 +14,8 @@ public class MapData {
 
     private String fileNameTanks;
 
+    private int activeTanksLimit;
+
     public String getPathToFolder() {
         return pathToFolder;
     }
@@ -62,6 +64,14 @@ public class MapData {
         this.fileNameTanks = fileNameTanks;
     }
 
+    public int getActiveTanksLimit() {
+        return activeTanksLimit;
+    }
+
+    public void setActiveTanksLimit(int activeTanksLimit) {
+        this.activeTanksLimit = activeTanksLimit;
+    }
+
     @Override
     public String toString() {
         return "MapData{" +
@@ -71,6 +81,7 @@ public class MapData {
                 ", fileNameLayer2='" + fileNameLayer2 + '\'' +
                 ", fileNameSpawnSpots='" + fileNameSpawnSpots + '\'' +
                 ", fileNameTanks='" + fileNameTanks + '\'' +
+                ", activeTanksLimit=" + activeTanksLimit +
                 '}';
     }
 }
