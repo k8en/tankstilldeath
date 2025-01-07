@@ -19,7 +19,7 @@ public class Tank extends Rectangle {
     private final BonusController bonusController;
     private final TileController tileController;
 
-    private int team;
+    private int teamId;
 
     private MoveDirection moveDirection;
     private boolean isMoving;
@@ -49,13 +49,13 @@ public class Tank extends Rectangle {
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
 
-    public Tank(String animationMapName, double centerX, double centerY, int team, MoveDirection moveDirection, double movementSpeed, int bulletTypeId, double reloadingSpeed, int armorTypeId, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletOffsetNorthX, int bulletOffsetNorthY, int bulletOffsetEastX, int bulletOffsetEastY, int bulletOffsetSouthX, int bulletOffsetSouthY, int bulletOffsetWestX, int bulletOffsetWestY) {
+    public Tank(String animationMapName, double centerX, double centerY, int teamId, MoveDirection moveDirection, double movementSpeed, int bulletTypeId, double reloadingSpeed, int armorTypeId, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletOffsetNorthX, int bulletOffsetNorthY, int bulletOffsetEastX, int bulletOffsetEastY, int bulletOffsetSouthX, int bulletOffsetSouthY, int bulletOffsetWestX, int bulletOffsetWestY) {
         bonusController = BonusController.getInstance();
         tileController = TileController.getInstance();
         ResourcesController resourcesController = ResourcesController.getInstance();
 
         // Setup generic parameters
-        this.team = team;
+        this.teamId = teamId;
         this.movementSpeed = movementSpeed;
         isMoving = false;
         this.armorTypeId = armorTypeId;
@@ -141,6 +141,10 @@ public class Tank extends Rectangle {
         return hitBox;
     }
 
+    private int getTeamId() {
+        return teamId;
+    }
+
     public boolean isActive() {
         return isActive;
     }
@@ -209,7 +213,7 @@ public class Tank extends Rectangle {
                     bulletOffsetY = bulletOffsetWestY;
                 }
 
-                BulletController.getInstance().spawn(x + bulletOffsetX, y + bulletOffsetY, moveDirection);
+                BulletController.getInstance().spawn(x + bulletOffsetX, y + bulletOffsetY, moveDirection, teamId);
                 isReadyToShot = false;
                 reloadingProgress = 0;
             }

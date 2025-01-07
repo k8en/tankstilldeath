@@ -199,21 +199,21 @@ public class TankController {
         NodeList list = xmlDocument.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
 
-            Node childNode = list.item(i);
-            if ("tanks".equals(childNode.getNodeName())) {
+            Node tanksToSpawnNode = list.item(i);
+            if ("tanks_to_spawn".equals(tanksToSpawnNode.getNodeName())) {
 
-                NodeList tanksNodesList = childNode.getChildNodes();
-                for (int j = 0; j < tanksNodesList.getLength(); j++) {
+                NodeList tanksToSpawnNodesList = tanksToSpawnNode.getChildNodes();
+                for (int j = 0; j < tanksToSpawnNodesList.getLength(); j++) {
 
-                    Node tankNode = tanksNodesList.item(j);
-                    if ("tank".equals(tankNode.getNodeName())) {
+                    Node tankToSpawnNode = tanksToSpawnNodesList.item(j);
+                    if ("tank_to_spawn".equals(tankToSpawnNode.getNodeName())) {
 
-                        Element tankElement = (Element) tankNode;
+                        Element tankToSpawnElement = (Element) tankToSpawnNode;
 
-                        int id = DomUtils.resolveIntAttribute(tankElement, "id");
-                        int team = DomUtils.resolveIntAttribute(tankElement, "team");
+                        int id = DomUtils.resolveIntAttribute(tankToSpawnElement, "id");
+                        int teamId = DomUtils.resolveIntAttribute(tankToSpawnElement, "team_id");
 
-                        Tank tank = prepareTank(id, team, 0, 0, MoveDirection.NORTH);
+                        Tank tank = prepareTank(id, teamId, 0, 0, MoveDirection.NORTH);
                         tanksToSpawnList.add(tank);
                     }
                 }

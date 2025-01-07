@@ -6,6 +6,7 @@ import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.games.tankstilldeath.controllers.ExplosionController;
 import org.kdepo.games.tankstilldeath.controllers.SpawnSpotController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
+import org.kdepo.games.tankstilldeath.model.Base;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
@@ -43,6 +44,7 @@ public class TestScreen extends AbstractScreen {
     private Tank playerTank;
 
     private MapData mapData;
+    private Base base;
 
     public TestScreen() {
         this.name = "test";
@@ -68,13 +70,14 @@ public class TestScreen extends AbstractScreen {
         Resource mapResource = resourcesController.getResource("map_test");
         mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
         spawnSpotController.loadSpawnSpotData(mapData.getPathToFolder() + File.separator + mapData.getFileNameSpawnSpots());
-        tankController.loadTanksToSpawnData(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanks());
+        tankController.loadTanksToSpawnData(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanksToSpawn());
         tankController.setActiveTanksLimit(mapData.getActiveTanksLimit());
         tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
 
-        //tankController.spawn(1);
+        base = new Base();
+        base.setActive(true);
 
-        playerTank = tankController.prepareTank(0, 1, 500, 600, MoveDirection.NORTH);
+        playerTank = tankController.prepareTank(0, Constants.Teams.PLAYER_ID, 500, 600, MoveDirection.NORTH);
 
         bonusController.spawn(500, 500, Constants.Bonuses.STAR_ID);
         bonusController.spawn(600, 500, Constants.Bonuses.SHIELD_ID);
@@ -137,6 +140,15 @@ public class TestScreen extends AbstractScreen {
 
                 }
             }
+
+            if (bullet.isActive() && base.isActive()) {
+                if (CollisionsChecker.hasCollision(base.getHitBox(), bullet.getHitBox())) {
+                    bullet.setActive(false);
+                    base.setActive(false);
+                    Point baseCenter = base.getCenter();
+                    explosionController.spawn(baseCenter.getX(), baseCenter.getY(), "animation_explosion_02");
+                }
+            }
         }
     }
 
@@ -149,6 +161,11 @@ public class TestScreen extends AbstractScreen {
         tankController.render(g);
         playerTank.render(g);
         bonusController.render(g);
+
+        if (base.isActive()) {
+            base.render(g);
+        }
+
         bulletController.render(g);
         explosionController.render(g);
 
@@ -159,6 +176,7 @@ public class TestScreen extends AbstractScreen {
 
     @Override
     public void dispose() {
+        base = null;
         font13x15o = null;
         playerTank = null;
     }

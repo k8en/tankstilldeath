@@ -29,7 +29,7 @@ public class BulletController {
         return bulletList;
     }
 
-    public void spawn(double x, double y, MoveDirection moveDirection) {
+    public void spawn(double x, double y, MoveDirection moveDirection, int teamId) {
         Bullet bulletToSpawn = null;
         for (Bullet bullet : bulletList) {
             if (!bullet.isActive()) {
@@ -40,12 +40,14 @@ public class BulletController {
 
         if (bulletToSpawn == null) {
             bulletToSpawn = new Bullet(x, y, moveDirection);
+            bulletToSpawn.setTeamId(teamId);
             bulletToSpawn.setActive(true);
             bulletList.add(bulletToSpawn);
         } else {
             bulletToSpawn.setX(x);
             bulletToSpawn.setY(y);
             bulletToSpawn.setMoveDirection(moveDirection);
+            bulletToSpawn.setTeamId(teamId);
             bulletToSpawn.setActive(true);
         }
     }

@@ -12,7 +12,7 @@ public class MapData {
 
     private String fileNameSpawnSpots;
 
-    private String fileNameTanks;
+    private String fileNameTanksToSpawn;
 
     private int activeTanksLimit;
 
@@ -56,12 +56,12 @@ public class MapData {
         this.fileNameSpawnSpots = fileNameSpawnSpots;
     }
 
-    public String getFileNameTanks() {
-        return fileNameTanks;
+    public String getFileNameTanksToSpawn() {
+        return fileNameTanksToSpawn;
     }
 
-    public void setFileNameTanks(String fileNameTanks) {
-        this.fileNameTanks = fileNameTanks;
+    public void setFileNameTanksToSpawn(String fileNameTanksToSpawn) {
+        this.fileNameTanksToSpawn = fileNameTanksToSpawn;
     }
 
     public int getActiveTanksLimit() {
@@ -80,7 +80,7 @@ public class MapData {
                 ", fileNameLayer1='" + fileNameLayer1 + '\'' +
                 ", fileNameLayer2='" + fileNameLayer2 + '\'' +
                 ", fileNameSpawnSpots='" + fileNameSpawnSpots + '\'' +
-                ", fileNameTanks='" + fileNameTanks + '\'' +
+                ", fileNameTanksToSpawn='" + fileNameTanksToSpawn + '\'' +
                 ", activeTanksLimit=" + activeTanksLimit +
                 '}';
     }

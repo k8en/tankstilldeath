@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class Bullet extends Rectangle {
 
+    private int teamId;
     private MoveDirection moveDirection;
     private double movementSpeed;
     private Rectangle hitBox;
@@ -55,6 +56,14 @@ public class Bullet extends Rectangle {
         this.height = animationController.getActiveFrame().getImage().getHeight();
 
         hitBox = new Rectangle(this.x, this.y, width, height);
+    }
+
+    public int getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(int teamId) {
+        this.teamId = teamId;
     }
 
     public MoveDirection getMoveDirection() {

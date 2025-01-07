@@ -111,13 +111,13 @@ public class MapDataUtils {
                             }
                             mapData.setFileNameSpawnSpots(fileName);
 
-                        } else if (name.equals("tanks")) {
+                        } else if (name.equals("tanks_to_spawn")) {
                             String fileName = propertyElement.getAttribute("file");
                             if (fileName.isEmpty()) {
                                 System.out.println("Tanks file name not found for " + propertyElement);
                                 continue;
                             }
-                            mapData.setFileNameTanks(fileName);
+                            mapData.setFileNameTanksToSpawn(fileName);
 
                         } else if (name.equals("active_tanks_limit")) {
                             int activeTanksLimit = DomUtils.resolveIntAttribute(propertyElement, "value");
