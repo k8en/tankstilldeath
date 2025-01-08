@@ -25,7 +25,7 @@ public class BonusController {
         bonusList = new ArrayList<>();
     }
 
-    public void spawn(double x, double y, int id) {
+    public void spawn(double x, double y, int bonusId) {
         Bonus bonusToSpawn = null;
         for (Bonus bonus : bonusList) {
             if (!bonus.isActive()) {
@@ -35,9 +35,10 @@ public class BonusController {
         }
 
         if (bonusToSpawn == null) {
-            bonusToSpawn = new Bonus(x, y, id);
+            bonusToSpawn = new Bonus(x, y, bonusId);
             bonusToSpawn.setActive(true);
             bonusList.add(bonusToSpawn);
+            System.out.println("New bonus " + bonusToSpawn.getBonusId() + " at (" + bonusToSpawn.getX() + "," + bonusToSpawn.getX() + ")");
         } else {
             bonusToSpawn.setX(x);
             bonusToSpawn.setY(y);

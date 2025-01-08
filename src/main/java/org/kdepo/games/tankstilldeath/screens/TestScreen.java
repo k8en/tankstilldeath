@@ -87,7 +87,7 @@ public class TestScreen extends AbstractScreen {
     public void update(KeyHandler keyHandler, MouseHandler mouseHandler) {
         tankController.update();
         if (tankController.canSpawn()) {
-            tankController.spawn(1);
+            tankController.spawn(Constants.Teams.ENEMY_ID);
         }
 
         playerTank.resolveControls(keyHandler);
@@ -106,7 +106,7 @@ public class TestScreen extends AbstractScreen {
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
                         Point tankCenter = tank.getCenter();
-                        explosionController.spawn(tankCenter.getX(), tankCenter.getY(), "animation_explosion_01");
+                        explosionController.spawn(tankCenter.getX(), tankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
                         it.remove();
                     }
                 }
@@ -117,7 +117,7 @@ public class TestScreen extends AbstractScreen {
                 Tile tile = tileController.getTile(TileController.LAYER_MIDDLE, bulletCenter.getX(), bulletCenter.getY());
                 if (tile != null && CollisionsChecker.hasCollision(tile.getHitBox(), bulletCenter.getX(), bulletCenter.getY())) {
                     bullet.setActive(false);
-                    explosionController.spawn(bulletCenter.getX(), bulletCenter.getY(), "animation_explosion_00");
+                    explosionController.spawn(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
 
                     if (tile.getId() == 2) {
                         if (MoveDirection.NORTH.equals(bullet.getMoveDirection())) {
@@ -146,7 +146,7 @@ public class TestScreen extends AbstractScreen {
                     bullet.setActive(false);
                     base.setActive(false);
                     Point baseCenter = base.getCenter();
-                    explosionController.spawn(baseCenter.getX(), baseCenter.getY(), "animation_explosion_02");
+                    explosionController.spawn(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
                 }
             }
         }

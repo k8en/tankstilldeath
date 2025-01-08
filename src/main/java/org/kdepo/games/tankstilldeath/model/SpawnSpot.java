@@ -1,36 +1,23 @@
 package org.kdepo.games.tankstilldeath.model;
 
-import org.kdepo.graphics.k2d.geometry.Rectangle;
-
-public class SpawnSpot extends Rectangle {
-
-    private boolean isActive;
+public class SpawnSpot extends AbstractGameObject {
 
     private long timer;
 
-    private int team;
+    private int teamId;
 
     private final MoveDirection moveDirection;
 
-    public SpawnSpot(int x, int y, int team, MoveDirection moveDirection) {
+    public SpawnSpot(int x, int y, int teamId, MoveDirection moveDirection) {
+        isActive = false;
         this.x = x;
         this.y = y;
-        this.team = team;
+        this.teamId = teamId;
         this.moveDirection = moveDirection;
-
-        isActive = false;
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public int getTeam() {
-        return team;
+    public int getTeamId() {
+        return teamId;
     }
 
     public MoveDirection getMoveDirection() {
@@ -41,6 +28,7 @@ public class SpawnSpot extends Rectangle {
         timer = System.currentTimeMillis() + 10000;
     }
 
+    @Override
     public void update() {
         if (System.currentTimeMillis() > timer) {
             isActive = false;
@@ -50,9 +38,8 @@ public class SpawnSpot extends Rectangle {
     @Override
     public String toString() {
         return "SpawnSpot{" +
-                "isActive=" + isActive +
-                ", timer=" + timer +
-                ", team=" + team +
+                "timer=" + timer +
+                ", teamId=" + teamId +
                 ", moveDirection=" + moveDirection +
                 '}';
     }

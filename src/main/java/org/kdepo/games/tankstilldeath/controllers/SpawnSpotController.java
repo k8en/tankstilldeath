@@ -91,10 +91,10 @@ public class SpawnSpotController {
 
                         int x = DomUtils.resolveIntAttribute(spawnSpotElement, "x");
                         int y = DomUtils.resolveIntAttribute(spawnSpotElement, "y");
-                        int team = DomUtils.resolveIntAttribute(spawnSpotElement, "team");
+                        int teamId = DomUtils.resolveIntAttribute(spawnSpotElement, "team_id");
                         MoveDirection moveDirection = MoveDirection.valueOf(DomUtils.resolveStringAttribute(spawnSpotElement, "move_direction").toUpperCase());
 
-                        SpawnSpot spawnSpot = new SpawnSpot(x, y, team, moveDirection);
+                        SpawnSpot spawnSpot = new SpawnSpot(x, y, teamId, moveDirection);
                         spawnSpotList.add(spawnSpot);
                     }
                 }
@@ -102,9 +102,9 @@ public class SpawnSpotController {
         }
     }
 
-    public SpawnSpot getAvailableSpawnSpot(int team) {
+    public SpawnSpot getAvailableSpawnSpot(int teamId) {
         for (SpawnSpot spawnSpot : spawnSpotList) {
-            if (spawnSpot.getTeam() == team && !spawnSpot.isActive()) {
+            if (spawnSpot.getTeamId() == teamId && !spawnSpot.isActive()) {
                 return spawnSpot;
             }
         }

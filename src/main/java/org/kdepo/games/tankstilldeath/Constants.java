@@ -10,6 +10,12 @@ public class Constants {
         int SHIELD_ID = 1;
     }
 
+    public interface Explosions {
+        String ANIMATION_SMALL = "animation_explosion_00";
+        String ANIMATION_MEDIUM = "animation_explosion_01";
+        String ANIMATION_BIG = "animation_explosion_02";
+    }
+
     public interface Teams {
         int PLAYER_ID = 0;
         int ENEMY_ID = 1;

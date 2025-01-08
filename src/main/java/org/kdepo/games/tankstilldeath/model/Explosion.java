@@ -4,27 +4,17 @@ import org.kdepo.graphics.k2d.animations.Animation;
 import org.kdepo.graphics.k2d.animations.AnimationController;
 import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
-import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
-import java.awt.*;
 import java.util.Map;
 
-public class Explosion extends Rectangle {
+public class Explosion extends AbstractGameObject {
 
     private final ResourcesController resourcesController;
 
-    private boolean isActive;
-
-    private final AnimationController animationController;
-
     public Explosion(double x, double y, String animationMapName) {
-        this.x = x;
-        this.y = y;
-
         resourcesController = ResourcesController.getInstance();
         Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
-
         animationController = new AnimationController(
                 animationMap,
                 animationMap.get("explosion"),
@@ -32,16 +22,10 @@ public class Explosion extends Rectangle {
                 AnimationPlayMode.ONCE
         );
 
+        this.x = x;
+        this.y = y;
         this.width = animationController.getActiveFrame().getImage().getWidth();
         this.height = animationController.getActiveFrame().getImage().getHeight();
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
     }
 
     public void restartAnimation(String animationMapName) {
@@ -53,21 +37,5 @@ public class Explosion extends Rectangle {
 
         width = activeAnimation.getAnimationFrames().get(0).getImage().getWidth();
         height = activeAnimation.getAnimationFrames().get(0).getImage().getHeight();
-    }
-
-    public void update() {
-        if (animationController.isAnimationCompleted()) {
-            isActive = false;
-            return;
-        }
-        animationController.update();
-    }
-
-    public void render(Graphics2D g) {
-        g.drawImage(
-                animationController.getActiveFrame().getImage(),
-                (int) x, (int) y,
-                null
-        );
     }
 }

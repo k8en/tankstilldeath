@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.controllers;
 
+import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
@@ -233,14 +234,14 @@ public class TankController {
         this.activeTanksLimit = activeTanksLimit;
     }
 
-    public void spawn(int team) {
+    public void spawn(int teamId) {
         if (tanksToSpawnList.isEmpty()) {
             return;
         }
 
         Tank tankToSpawn = tanksToSpawnList.get(0);
 
-        SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(team);
+        SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(teamId);
         Point spawnPointCenter = spawnSpot.getCenter();
 
         tankToSpawn.setCenter(spawnPointCenter.getX(), spawnPointCenter.getY());
@@ -292,7 +293,7 @@ public class TankController {
 
     public boolean canSpawn() {
         return activeTanksList.size() <= activeTanksLimit
-                && spawnSpotController.getAvailableSpawnSpot(1) != null
+                && spawnSpotController.getAvailableSpawnSpot(Constants.Teams.ENEMY_ID) != null
                 && !tanksToSpawnList.isEmpty();
     }
 }

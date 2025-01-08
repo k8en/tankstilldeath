@@ -7,25 +7,21 @@ import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
-import java.awt.*;
 import java.util.Map;
 
-public class Bullet extends Rectangle {
+public class Bullet extends AbstractHittableGameObject {
 
     private int teamId;
+
     private MoveDirection moveDirection;
-    private double movementSpeed;
-    private Rectangle hitBox;
 
-    private boolean isActive;
-
-    private final AnimationController animationController;
+    private double moveSpeed;
 
     public Bullet(double x, double y, MoveDirection moveDirection) {
         this.x = x;
         this.y = y;
         this.moveDirection = moveDirection;
-        movementSpeed = 7.5d;
+        moveSpeed = 7.5d;
 
         ResourcesController resourcesController = ResourcesController.getInstance();
         Map<String, Animation> animationMap = resourcesController.getAnimations("animation_bullet_00");
@@ -58,6 +54,16 @@ public class Bullet extends Rectangle {
         hitBox = new Rectangle(this.x, this.y, width, height);
     }
 
+    @Override
+    public void update() {
+        x = x + moveSpeed * moveDirection.getX();
+        y = y + moveSpeed * moveDirection.getY();
+        hitBox.setX(x);
+        hitBox.setY(y);
+
+        animationController.update();
+    }
+
     public int getTeamId() {
         return teamId;
     }
@@ -74,33 +80,11 @@ public class Bullet extends Rectangle {
         this.moveDirection = moveDirection;
     }
 
-    public Rectangle getHitBox() {
-        return hitBox;
+    public double getMoveSpeed() {
+        return moveSpeed;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public void setMoveSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
     }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public void update() {
-        x = x + movementSpeed * moveDirection.getX();
-        y = y + movementSpeed * moveDirection.getY();
-        hitBox.setX(x);
-        hitBox.setY(y);
-
-        animationController.update();
-    }
-
-    public void render(Graphics2D g) {
-        g.drawImage(
-                animationController.getActiveFrame().getImage(),
-                (int) x, (int) y,
-                null
-        );
-    }
-
 }

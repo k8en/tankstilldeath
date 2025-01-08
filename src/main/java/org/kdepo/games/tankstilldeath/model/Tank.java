@@ -11,10 +11,9 @@ import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.tiles.TileController;
 
-import java.awt.*;
 import java.util.Map;
 
-public class Tank extends Rectangle {
+public class Tank extends AbstractHittableGameObject {
 
     private final BonusController bonusController;
     private final TileController tileController;
@@ -25,17 +24,12 @@ public class Tank extends Rectangle {
     private boolean isMoving;
     private double movementSpeed;
 
-    private boolean isActive;
-
-    private Rectangle hitBox;
     private int hitBoxOffsetX;
     private int hitBoxOffsetY;
 
     boolean isReadyToShot;
     private double reloadingProgress;
     private double reloadingSpeed;
-
-    private final AnimationController animationController;
 
     private int armorTypeId;
 
@@ -60,18 +54,19 @@ public class Tank extends Rectangle {
         isMoving = false;
         this.armorTypeId = armorTypeId;
         isActive = false;
+        this.moveDirection = moveDirection;
 
         // Setup animations
         Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
 
         Animation activeAnimation = null;
-        if (MoveDirection.NORTH.equals(moveDirection)) {
+        if (MoveDirection.NORTH.equals(this.moveDirection)) {
             activeAnimation = animationMap.get("idle_north");
-        } else if (MoveDirection.EAST.equals(moveDirection)) {
+        } else if (MoveDirection.EAST.equals(this.moveDirection)) {
             activeAnimation = animationMap.get("idle_east");
-        } else if (MoveDirection.SOUTH.equals(moveDirection)) {
+        } else if (MoveDirection.SOUTH.equals(this.moveDirection)) {
             activeAnimation = animationMap.get("idle_south");
-        } else if (MoveDirection.WEST.equals(moveDirection)) {
+        } else if (MoveDirection.WEST.equals(this.moveDirection)) {
             activeAnimation = animationMap.get("idle_west");
         }
 
@@ -116,6 +111,49 @@ public class Tank extends Rectangle {
         this.bulletOffsetWestY = bulletOffsetWestY;
     }
 
+    @Override
+    public void setCenter(double cx, double cy) {
+        super.setCenter(cx, cy);
+        hitBox.setX(this.x + this.hitBoxOffsetX);
+        hitBox.setY(this.y + this.hitBoxOffsetY);
+    }
+
+    @Override
+    public void update() {
+        if (isMoving) {
+            double nextX = x + movementSpeed * moveDirection.getX();
+            double nextY = y + movementSpeed * moveDirection.getY();
+
+            hitBox.setX(nextX + hitBoxOffsetX);
+            hitBox.setY(nextY + hitBoxOffsetY);
+
+            if (tileController.hasCollision(hitBox)) {
+                hitBox.setX(x + hitBoxOffsetX);
+                hitBox.setY(y + hitBoxOffsetY);
+            } else {
+                x = nextX;
+                y = nextY;
+
+                Bonus bonus = bonusController.getBonusAtCollision(hitBox);
+                if (bonus != null) {
+                    // TODO apply bonus effects
+                    //..
+
+                    bonus.setActive(false);
+                }
+            }
+        }
+        animationController.update();
+
+        if (reloadingProgress < 100) {
+            reloadingProgress = reloadingProgress + reloadingSpeed;
+            if (reloadingProgress >= 100) {
+                isReadyToShot = true;
+                reloadingProgress = 100;
+            }
+        }
+    }
+
     public void setMoveDirection(MoveDirection moveDirection) {
         this.moveDirection = moveDirection;
 
@@ -130,27 +168,8 @@ public class Tank extends Rectangle {
         }
     }
 
-    @Override
-    public void setCenter(double cx, double cy) {
-        super.setCenter(cx, cy);
-        hitBox.setX(this.x + this.hitBoxOffsetX);
-        hitBox.setY(this.y + this.hitBoxOffsetY);
-    }
-
-    public Rectangle getHitBox() {
-        return hitBox;
-    }
-
     private int getTeamId() {
         return teamId;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
     }
 
     public void resolveControls(KeyHandler keyHandler) {
@@ -218,51 +237,5 @@ public class Tank extends Rectangle {
                 reloadingProgress = 0;
             }
         }
-    }
-
-    public void update() {
-        if (isMoving) {
-            double nextX = x + movementSpeed * moveDirection.getX();
-            double nextY = y + movementSpeed * moveDirection.getY();
-
-            hitBox.setX(nextX + hitBoxOffsetX);
-            hitBox.setY(nextY + hitBoxOffsetY);
-
-            if (tileController.hasCollision(hitBox)) {
-                hitBox.setX(x + hitBoxOffsetX);
-                hitBox.setY(y + hitBoxOffsetY);
-            } else {
-                x = nextX;
-                y = nextY;
-
-                Bonus bonus = bonusController.getBonusAtCollision(hitBox);
-                if (bonus != null) {
-                    // TODO apply bonus effects
-                    //..
-
-                    bonus.setActive(false);
-                }
-            }
-        }
-        animationController.update();
-
-        if (reloadingProgress < 100) {
-            reloadingProgress = reloadingProgress + reloadingSpeed;
-            if (reloadingProgress >= 100) {
-                isReadyToShot = true;
-                reloadingProgress = 100;
-            }
-        }
-    }
-
-    public void render(Graphics2D g) {
-        g.drawImage(
-                animationController.getActiveFrame().getImage(),
-                (int) x, (int) y,
-                null
-        );
-
-        //g.setColor(Color.MAGENTA);
-        //g.drawRect((int) hitBox.getX(), (int) hitBox.getY(), (int) hitBox.getWidth(), (int) hitBox.getHeight());
     }
 }

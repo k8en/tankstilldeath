@@ -1,48 +1,57 @@
 package org.kdepo.games.tankstilldeath.model;
 
 import org.kdepo.games.tankstilldeath.Constants;
+import org.kdepo.graphics.k2d.animations.Animation;
+import org.kdepo.graphics.k2d.animations.AnimationController;
+import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
+import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.util.Map;
 
-public class Bonus extends Rectangle {
+public class Bonus extends AbstractHittableGameObject {
 
     private final ResourcesController resourcesController;
 
-    private int id;
-
-    private BufferedImage image;
-
-    private final Rectangle hitBox;
-
-    private boolean isActive;
+    private int bonusId;
 
     private long timer;
 
-    public Bonus(double x, double y, int id) {
+    public Bonus(double x, double y, int bonusId) {
+        isActive = false;
         this.resourcesController = ResourcesController.getInstance();
         this.hitBox = new Rectangle();
-        isActive = false;
-        setBonusConfiguration(x, y, id);
+        setBonusConfiguration(x, y, bonusId);
     }
 
-    public void setBonusConfiguration(double x, double y, int id) {
+    public void setBonusConfiguration(double x, double y, int bonusId) {
         this.x = x;
         this.y = y;
-        this.id = id;
+        this.bonusId = bonusId;
 
-        if (Constants.Bonuses.STAR_ID == id) {
-            image = resourcesController.getImage("image_bonus_0");
+        Map<String, Animation> animationMap = null;
+        if (Constants.Bonuses.STAR_ID == bonusId) {
+            animationMap = resourcesController.getAnimations("animation_bonus_00");
 
-        } else if (Constants.Bonuses.SHIELD_ID == id) {
-            image = resourcesController.getImage("image_bonus_1");
+        } else if (Constants.Bonuses.SHIELD_ID == bonusId) {
+            animationMap = resourcesController.getAnimations("animation_bonus_01");
 
         }
 
-        this.width = image.getWidth();
-        this.height = image.getHeight();
+        if (animationMap == null) {
+            throw new RuntimeException("Animations not resolved for bonusId " + bonusId);
+        }
+
+        animationController = new AnimationController(
+                animationMap,
+                animationMap.get("idle"),
+                AnimationPlayDirection.FORWARD,
+                AnimationPlayMode.LOOP
+        );
+
+        this.width = animationController.getActiveFrame().getImage().getWidth();
+        this.height = animationController.getActiveFrame().getImage().getHeight();
         hitBox.setX(this.x);
         hitBox.setY(this.y);
         hitBox.setWidth(this.width);
@@ -51,33 +60,14 @@ public class Bonus extends Rectangle {
         timer = System.currentTimeMillis() + 10000;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public Rectangle getHitBox() {
-        return this.hitBox;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
+    @Override
     public void update() {
         if (System.currentTimeMillis() > timer) {
             isActive = false;
         }
     }
 
-    public void render(Graphics2D g) {
-        g.drawImage(
-                image,
-                (int) x, (int) y,
-                null
-        );
+    public int getBonusId() {
+        return bonusId;
     }
 }
