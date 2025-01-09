@@ -33,6 +33,10 @@ public class Constants {
         String ANIMATION_BIG = "animation_explosion_02";
     }
 
+    public interface Screens {
+        String BATTLE = "battle";
+    }
+
     public interface Teams {
         int PLAYER_ID = 0;
         int ENEMY_ID = 1;

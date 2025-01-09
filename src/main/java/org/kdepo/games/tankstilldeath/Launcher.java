@@ -1,6 +1,6 @@
 package org.kdepo.games.tankstilldeath;
 
-import org.kdepo.games.tankstilldeath.screens.TestScreen;
+import org.kdepo.games.tankstilldeath.screens.BattleScreen;
 import org.kdepo.graphics.k2d.GameEngine;
 import org.kdepo.graphics.k2d.GamePanel;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
@@ -31,15 +31,15 @@ public class Launcher {
         resourcesController.loadDefinitions("resources.xml");
 
         GameEngine gameEngine = new GameEngine();
-        gameEngine.setScreenWidth(1280); // 80 blocks
-        gameEngine.setScreenHeight(916); // 60 blocks
+        gameEngine.setScreenWidth(Constants.SCREEN_WIDTH);   // 80 blocks
+        gameEngine.setScreenHeight(Constants.SCREEN_HEIGHT); // 60 blocks
 
-        TestScreen testScreen = new TestScreen();
+        BattleScreen battleScreen = new BattleScreen();
 
-        gameEngine.addScreen(testScreen);
+        gameEngine.addScreen(battleScreen);
 
         Map<String, Object> parameters = new HashMap<>();
-        gameEngine.setActiveScreen(testScreen.getName(), parameters);
+        gameEngine.setActiveScreen(battleScreen.getName(), parameters);
 
         GamePanel gamePanel = new GamePanel(gameEngine.getScreenWidth(), gameEngine.getScreenHeight());
         gamePanel.setGameEngine(gameEngine);

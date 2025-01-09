@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-public class TestScreen extends AbstractScreen {
+public class BattleScreen extends AbstractScreen {
 
     private final ResourcesController resourcesController;
 
@@ -40,6 +40,7 @@ public class TestScreen extends AbstractScreen {
 
     private Font font13x15o;
 
+    private int playerTanksCounter;
     private Tank playerTank;
 
     private MapData mapData;
@@ -54,8 +55,8 @@ public class TestScreen extends AbstractScreen {
 
     private Base base;
 
-    public TestScreen() {
-        this.name = "test";
+    public BattleScreen() {
+        this.name = Constants.Screens.BATTLE;
 
         resourcesController = ResourcesController.getInstance();
         spawnSpotController = SpawnSpotController.getInstance();
@@ -67,6 +68,8 @@ public class TestScreen extends AbstractScreen {
 
         Resource tankConfigurationResource = resourcesController.getResource("tank_configuration");
         tankController.loadTanksConfigurations(resourcesController.getPath() + tankConfigurationResource.getPath());
+
+        playerTanksCounter = 3;
 
         activeTanksList = new ArrayList<>();
         bonusList = new ArrayList<>();
@@ -100,7 +103,12 @@ public class TestScreen extends AbstractScreen {
         base = new Base();
         base.setActive(true);
 
-        playerTank = tankController.prepareTank(0, Constants.Teams.PLAYER_ID, 500, 600, MoveDirection.NORTH);
+        SpawnSpot playerSpawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.PLAYER_ID);
+        if (playerSpawnSpot != null) {
+            spawnPlayerTank(playerSpawnSpot);
+        } else {
+            throw new RuntimeException("Player spawn spot is not found for map: " + resourcesController.getPath() + mapResource.getPath());
+        }
 
         spawnBonus(500, 500, Constants.Bonuses.STAR_ID);
         spawnBonus(600, 500, Constants.Bonuses.SHIELD_ID);
@@ -188,6 +196,10 @@ public class TestScreen extends AbstractScreen {
                     base.setActive(false);
                     Point baseCenter = base.getCenter();
                     spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
+
+                    // TODO player win condition
+                    //..
+                    System.out.println("player lose (base)");
                 }
             }
         }
@@ -211,14 +223,17 @@ public class TestScreen extends AbstractScreen {
         }
 
         // Check if bullet hit a player tank
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bullet.getHitBox())) {
-                    bullet.setActive(false);
-                    updateTankArmourOnHit(playerTank, bullet);
-                    boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
-                    if (isTankDestroyed) {
-                        //TODO
+        if (playerTank.isActive()) {
+            for (Bullet bullet : bulletList) {
+                if (bullet.isActive()) {
+                    if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bullet.getHitBox())) {
+                        bullet.setActive(false);
+                        updateTankArmourOnHit(playerTank, bullet);
+                        boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
+                        if (isTankDestroyed) {
+                            playerTank.setActive(false);
+                            playerTanksCounter = playerTanksCounter - 1;
+                        }
                     }
                 }
             }
@@ -252,59 +267,78 @@ public class TestScreen extends AbstractScreen {
         }
 
         // Process player tank
-        playerTank.resolveControls(keyHandler);
+        if (playerTank.isActive()) {
+            playerTank.resolveControls(keyHandler);
+        }
 
-        if (playerTank.isMoving()) {
+        if (playerTank.isActive() && playerTank.isMoving()) {
             updateTankMovement(playerTank);
         }
 
         // Check for player tank collision with bonus
-        for (Bonus bonus : bonusList) {
-            if (bonus.isActive()) {
-                if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
-                    bonus.setActive(false);
-                    // TODO apply bonus effects
-                    //..
+        if (playerTank.isActive()) {
+            for (Bonus bonus : bonusList) {
+                if (bonus.isActive()) {
+                    if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
+                        bonus.setActive(false);
+                        // TODO apply bonus effects
+                        //..
+                    }
                 }
             }
         }
 
-        // Process weaponry
-        updateTankWeaponry(playerTank);
+        // Process player tank weaponry
+        if (playerTank.isActive()) {
+            updateTankWeaponry(playerTank);
+        }
 
         // Update animations
-        playerTank.update();
+        if (playerTank.isActive()) {
+            playerTank.update();
+        }
 
-        // Update active tanks list on a screen
-        if (activeTanksList.size() < activeTanksLimit
-                && !tanksToSpawnList.isEmpty()) {
-            SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.ENEMY_ID);
-            if (spawnSpot != null) {
-                spawnSpot.setActive(true);
-                spawnSpot.restartTimer();
-
-                Point spawnPointCenter = spawnSpot.getCenter();
-
-                Tank tankToSpawn = tanksToSpawnList.get(0);
-                tankToSpawn.setCenter(spawnPointCenter.getX(), spawnPointCenter.getY());
-                tankToSpawn.setMoveDirection(spawnSpot.getMoveDirection());
-                tankToSpawn.setActive(true);
-                activeTanksList.add(tankToSpawn);
-                tanksToSpawnList.remove(0);
-                System.out.println("Object spawned: " + tankToSpawn);
+        // Update enemy tanks list on a screen
+        if (tanksToSpawnList.isEmpty()) {
+            if (activeTanksList.isEmpty()) {
+                // TODO player win condition
+                //..
+                System.out.println("player win");
+            }
+        } else {
+            if (activeTanksList.size() < activeTanksLimit) {
+                SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.ENEMY_ID);
+                if (spawnSpot != null) {
+                    spawnEnemyTank(spawnSpot);
+                }
             }
         }
-        //--
+
+        // Update player tank presence on a screen
+        if (!playerTank.isActive()) {
+            if (playerTanksCounter > 0) {
+                SpawnSpot playerSpawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.PLAYER_ID);
+                if (playerSpawnSpot != null) {
+                    spawnPlayerTank(playerSpawnSpot);
+                }
+            } else {
+                // TODO player lose condition
+                //..
+                System.out.println("player lose");
+            }
+        }
 
         // Update spawn spots state
         spawnSpotController.update();
 
+        // Update bonuses state
         for (Bonus bonus : bonusList) {
             if (bonus.isActive()) {
                 bonus.update();
             }
         }
 
+        // Update explosions state
         for (Explosion explosion : explosionList) {
             if (explosion.isActive()) {
                 explosion.update();
@@ -324,7 +358,9 @@ public class TestScreen extends AbstractScreen {
             }
         }
 
-        playerTank.render(g);
+        if (playerTank.isActive()) {
+            playerTank.render(g);
+        }
 
         for (Bonus bonus : bonusList) {
             if (bonus.isActive()) {
@@ -493,5 +529,34 @@ public class TestScreen extends AbstractScreen {
             explosionToSpawn.setCenter(centerX, centerY);
             explosionToSpawn.setActive(true);
         }
+    }
+
+    public void spawnEnemyTank(SpawnSpot spawnSpot) {
+        spawnSpot.setActive(true);
+        spawnSpot.restartTimer();
+
+        Point spawnPointCenter = spawnSpot.getCenter();
+
+        Tank tankToSpawn = tanksToSpawnList.get(0);
+        tankToSpawn.setCenter(spawnPointCenter.getX(), spawnPointCenter.getY());
+        tankToSpawn.setMoveDirection(spawnSpot.getMoveDirection());
+        tankToSpawn.setActive(true);
+        activeTanksList.add(tankToSpawn);
+        tanksToSpawnList.remove(0);
+        System.out.println("Object spawned: " + tankToSpawn);
+    }
+
+    public void spawnPlayerTank(SpawnSpot spawnSpot) {
+        spawnSpot.setActive(true);
+        spawnSpot.restartTimer();
+
+        Point spawnPointCenter = spawnSpot.getCenter();
+
+        playerTank = tankController.prepareTank(0, Constants.Teams.PLAYER_ID, 0, 0, MoveDirection.NORTH);
+        playerTank.setCenter(spawnPointCenter.getX(), spawnPointCenter.getY());
+        playerTank.setMoveDirection(spawnSpot.getMoveDirection());
+        playerTank.setActive(true);
+
+        System.out.println("Object spawned: " + playerTank);
     }
 }
