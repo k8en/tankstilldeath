@@ -11,6 +11,8 @@ import java.util.Map;
 
 public class Bullet extends AbstractHittableGameObject {
 
+    private int bulletId;
+
     private int teamId;
 
     private MoveDirection moveDirection;
@@ -62,6 +64,14 @@ public class Bullet extends AbstractHittableGameObject {
         hitBox.setY(y);
 
         animationController.update();
+    }
+
+    public int getBulletId() {
+        return bulletId;
+    }
+
+    public void setBulletId(int bulletId) {
+        this.bulletId = bulletId;
     }
 
     public int getTeamId() {

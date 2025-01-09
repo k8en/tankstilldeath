@@ -19,6 +19,14 @@ public abstract class AbstractGameObject extends Rectangle {
         isActive = active;
     }
 
+    public AnimationController getAnimationController() {
+        return animationController;
+    }
+
+    public void setAnimationController(AnimationController animationController) {
+        this.animationController = animationController;
+    }
+
     public void update() {
         if (animationController.isAnimationCompleted()) {
             isActive = false;

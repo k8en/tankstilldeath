@@ -23,7 +23,7 @@ public class FilesUtils {
 
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot read file: " + pathToFile, e);
         }
 
         return lines;

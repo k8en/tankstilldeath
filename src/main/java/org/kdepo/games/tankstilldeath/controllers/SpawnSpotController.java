@@ -12,7 +12,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,15 +39,13 @@ public class SpawnSpotController {
 
         // Check that path to file is provided
         if (pathToFile == null || pathToFile.isEmpty()) {
-            System.out.println("Cannot load spawn spots data because path to file is not provided");
-            return;
+            throw new RuntimeException("Cannot load spawn spots data because path to file is not provided");
         }
 
         // Check for file existence
         File file = new File(pathToFile);
         if (!file.exists() || file.isDirectory()) {
-            System.out.println("Cannot load spawn spots data because path to file is not exists or directory: " + pathToFile);
-            return;
+            throw new RuntimeException("Cannot load spawn spots data because path to file is not exists or directory: " + pathToFile);
         }
 
         // Prepare parser
@@ -57,19 +54,15 @@ public class SpawnSpotController {
         try {
             db = dbf.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            System.out.println("Cannot load spawn spots data from file: " + pathToFile);
-            e.printStackTrace();
-            return;
+            throw new RuntimeException("Cannot load spawn spots data from file: " + pathToFile, e);
         }
 
         // Load spawn spots data
-        Document xmlDocument = null;
+        Document xmlDocument;
         try {
             xmlDocument = db.parse(pathToFile);
         } catch (IOException | SAXException e) {
-            System.out.println("Cannot load spawn spots data from file: " + pathToFile);
-            e.printStackTrace();
-            return;
+            throw new RuntimeException("Cannot load spawn spots data from file: " + pathToFile, e);
         }
 
         spawnSpotList.clear();
@@ -117,9 +110,5 @@ public class SpawnSpotController {
                 spawnSpot.update();
             }
         }
-    }
-
-    public void render(Graphics2D g) {
-
     }
 }

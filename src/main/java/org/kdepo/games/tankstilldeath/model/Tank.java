@@ -1,28 +1,23 @@
 package org.kdepo.games.tankstilldeath.model;
 
-import org.kdepo.games.tankstilldeath.controllers.BonusController;
-import org.kdepo.games.tankstilldeath.controllers.BulletController;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.animations.Animation;
 import org.kdepo.graphics.k2d.animations.AnimationController;
 import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
+import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
-import org.kdepo.graphics.k2d.tiles.TileController;
 
 import java.util.Map;
 
 public class Tank extends AbstractHittableGameObject {
 
-    private final BonusController bonusController;
-    private final TileController tileController;
-
-    private int teamId;
+    private final int teamId;
 
     private MoveDirection moveDirection;
     private boolean isMoving;
-    private double movementSpeed;
+    private double moveSpeed;
 
     private int hitBoxOffsetX;
     private int hitBoxOffsetY;
@@ -31,7 +26,7 @@ public class Tank extends AbstractHittableGameObject {
     private double reloadingProgress;
     private double reloadingSpeed;
 
-    private int armorTypeId;
+    private int armour;
 
     private int bulletTypeId;
     private int bulletOffsetNorthX;
@@ -43,16 +38,34 @@ public class Tank extends AbstractHittableGameObject {
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
 
-    public Tank(String animationMapName, double centerX, double centerY, int teamId, MoveDirection moveDirection, double movementSpeed, int bulletTypeId, double reloadingSpeed, int armorTypeId, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletOffsetNorthX, int bulletOffsetNorthY, int bulletOffsetEastX, int bulletOffsetEastY, int bulletOffsetSouthX, int bulletOffsetSouthY, int bulletOffsetWestX, int bulletOffsetWestY) {
-        bonusController = BonusController.getInstance();
-        tileController = TileController.getInstance();
+    public Tank(String animationMapName,
+                double centerX,
+                double centerY,
+                int teamId,
+                MoveDirection moveDirection,
+                double moveSpeed,
+                int bulletTypeId,
+                double reloadingSpeed,
+                int armour,
+                int hitBoxOffsetX,
+                int hitBoxOffsetY,
+                int hitBoxWidth,
+                int hitBoxHeight,
+                int bulletOffsetNorthX,
+                int bulletOffsetNorthY,
+                int bulletOffsetEastX,
+                int bulletOffsetEastY,
+                int bulletOffsetSouthX,
+                int bulletOffsetSouthY,
+                int bulletOffsetWestX,
+                int bulletOffsetWestY) {
         ResourcesController resourcesController = ResourcesController.getInstance();
 
         // Setup generic parameters
         this.teamId = teamId;
-        this.movementSpeed = movementSpeed;
+        this.moveSpeed = moveSpeed;
         isMoving = false;
-        this.armorTypeId = armorTypeId;
+        this.armour = armour;
         isActive = false;
         this.moveDirection = moveDirection;
 
@@ -120,38 +133,15 @@ public class Tank extends AbstractHittableGameObject {
 
     @Override
     public void update() {
-        if (isMoving) {
-            double nextX = x + movementSpeed * moveDirection.getX();
-            double nextY = y + movementSpeed * moveDirection.getY();
+        this.animationController.update();
+    }
 
-            hitBox.setX(nextX + hitBoxOffsetX);
-            hitBox.setY(nextY + hitBoxOffsetY);
+    public int getTeamId() {
+        return teamId;
+    }
 
-            if (tileController.hasCollision(hitBox)) {
-                hitBox.setX(x + hitBoxOffsetX);
-                hitBox.setY(y + hitBoxOffsetY);
-            } else {
-                x = nextX;
-                y = nextY;
-
-                Bonus bonus = bonusController.getBonusAtCollision(hitBox);
-                if (bonus != null) {
-                    // TODO apply bonus effects
-                    //..
-
-                    bonus.setActive(false);
-                }
-            }
-        }
-        animationController.update();
-
-        if (reloadingProgress < 100) {
-            reloadingProgress = reloadingProgress + reloadingSpeed;
-            if (reloadingProgress >= 100) {
-                isReadyToShot = true;
-                reloadingProgress = 100;
-            }
-        }
+    public MoveDirection getMoveDirection() {
+        return moveDirection;
     }
 
     public void setMoveDirection(MoveDirection moveDirection) {
@@ -168,8 +158,76 @@ public class Tank extends AbstractHittableGameObject {
         }
     }
 
-    private int getTeamId() {
-        return teamId;
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public double getMoveSpeed() {
+        return moveSpeed;
+    }
+
+    public void setMoveSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
+    }
+
+    public int getHitBoxOffsetX() {
+        return hitBoxOffsetX;
+    }
+
+    public int getHitBoxOffsetY() {
+        return hitBoxOffsetY;
+    }
+
+    public boolean isReadyToShot() {
+        return isReadyToShot && reloadingProgress == 100;
+    }
+
+    public void shot() {
+        isReadyToShot = false;
+        reloadingProgress = 0;
+    }
+
+    public void updateReloading() {
+        if (reloadingProgress < 100) {
+            reloadingProgress = reloadingProgress + reloadingSpeed;
+            if (reloadingProgress >= 100) {
+                isReadyToShot = true;
+                reloadingProgress = 100;
+            }
+        }
+    }
+
+    public int getArmour() {
+        return armour;
+    }
+
+    public void changeArmour(int value) {
+        armour = armour + value;
+        if (armour < 0) {
+            armour = 0;
+        } else if (armour > 3) {
+            armour = 3;
+        }
+    }
+
+    public Point getBulletOffset() {
+        int bulletOffsetX = 0;
+        int bulletOffsetY = 0;
+        if (MoveDirection.NORTH.equals(moveDirection)) {
+            bulletOffsetX = bulletOffsetNorthX;
+            bulletOffsetY = bulletOffsetNorthY;
+        } else if (MoveDirection.EAST.equals(moveDirection)) {
+            bulletOffsetX = bulletOffsetEastX;
+            bulletOffsetY = bulletOffsetEastY;
+        } else if (MoveDirection.SOUTH.equals(moveDirection)) {
+            bulletOffsetX = bulletOffsetSouthX;
+            bulletOffsetY = bulletOffsetSouthY;
+        } else if (MoveDirection.WEST.equals(moveDirection)) {
+            bulletOffsetX = bulletOffsetWestX;
+            bulletOffsetY = bulletOffsetWestY;
+        }
+
+        return new Point(bulletOffsetX, bulletOffsetY);
     }
 
     public void resolveControls(KeyHandler keyHandler) {
@@ -215,27 +273,40 @@ public class Tank extends AbstractHittableGameObject {
         }
 
         if (keyHandler.isSpacePressed()) {
-            if (isReadyToShot && reloadingProgress == 100) {
-                int bulletOffsetX = 0;
-                int bulletOffsetY = 0;
-                if (MoveDirection.NORTH.equals(moveDirection)) {
-                    bulletOffsetX = bulletOffsetNorthX;
-                    bulletOffsetY = bulletOffsetNorthY;
-                } else if (MoveDirection.EAST.equals(moveDirection)) {
-                    bulletOffsetX = bulletOffsetEastX;
-                    bulletOffsetY = bulletOffsetEastY;
-                } else if (MoveDirection.SOUTH.equals(moveDirection)) {
-                    bulletOffsetX = bulletOffsetSouthX;
-                    bulletOffsetY = bulletOffsetSouthY;
-                } else if (MoveDirection.WEST.equals(moveDirection)) {
-                    bulletOffsetX = bulletOffsetWestX;
-                    bulletOffsetY = bulletOffsetWestY;
-                }
-
-                BulletController.getInstance().spawn(x + bulletOffsetX, y + bulletOffsetY, moveDirection, teamId);
-                isReadyToShot = false;
-                reloadingProgress = 0;
-            }
+            isReadyToShot = true;
+        } else {
+            isReadyToShot = false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Tank{" +
+                "teamId=" + teamId +
+                ", x=" + x +
+                ", y=" + y +
+                ", width=" + width +
+                ", height=" + height +
+                ", hitBox.x=" + hitBox.getX() +
+                ", hitBox.y=" + hitBox.getY() +
+                ", moveDirection=" + moveDirection +
+                ", isMoving=" + isMoving +
+                ", movementSpeed=" + moveSpeed +
+                ", bulletTypeId=" + bulletTypeId +
+                ", armorTypeId=" + armour +
+                ", isReadyToShot=" + isReadyToShot +
+                ", reloadingProgress=" + reloadingProgress +
+                ", reloadingSpeed=" + reloadingSpeed +
+                ", hitBoxOffsetX=" + hitBoxOffsetX +
+                ", hitBoxOffsetY=" + hitBoxOffsetY +
+                ", bulletOffsetNorthX=" + bulletOffsetNorthX +
+                ", bulletOffsetNorthY=" + bulletOffsetNorthY +
+                ", bulletOffsetEastX=" + bulletOffsetEastX +
+                ", bulletOffsetEastY=" + bulletOffsetEastY +
+                ", bulletOffsetSouthX=" + bulletOffsetSouthX +
+                ", bulletOffsetSouthY=" + bulletOffsetSouthY +
+                ", bulletOffsetWestX=" + bulletOffsetWestX +
+                ", bulletOffsetWestY=" + bulletOffsetWestY +
+                '}';
     }
 }
