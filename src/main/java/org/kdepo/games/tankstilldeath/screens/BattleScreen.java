@@ -241,8 +241,10 @@ public class BattleScreen extends AbstractScreen {
 
         // Process active tanks
         for (Tank tank : activeTanksList) {
-            // TODO resolve controls (AI think)
-            //..
+            tank.resolveControlsAutomatically(
+                    playerTank.getHitBox(),
+                    base.getHitBox()
+            );
 
             if (tank.isMoving()) {
                 updateTankMovement(tank);

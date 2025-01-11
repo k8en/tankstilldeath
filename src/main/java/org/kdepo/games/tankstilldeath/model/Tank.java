@@ -1,5 +1,6 @@
 package org.kdepo.games.tankstilldeath.model;
 
+import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.animations.Animation;
 import org.kdepo.graphics.k2d.animations.AnimationController;
@@ -37,6 +38,9 @@ public class Tank extends AbstractHittableGameObject {
     private int bulletOffsetSouthY;
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
+
+    private VirtualKeyHandler keyHandler;
+    private Bot bot;
 
     public Tank(String animationMapName,
                 double centerX,
@@ -122,6 +126,11 @@ public class Tank extends AbstractHittableGameObject {
         this.bulletOffsetSouthY = bulletOffsetSouthY;
         this.bulletOffsetWestX = bulletOffsetWestX;
         this.bulletOffsetWestY = bulletOffsetWestY;
+
+        keyHandler = new VirtualKeyHandler();
+        if (Constants.Teams.ENEMY_ID == teamId) {
+            bot = new Bot();
+        }
     }
 
     @Override
@@ -230,7 +239,30 @@ public class Tank extends AbstractHittableGameObject {
         return new Point(bulletOffsetX, bulletOffsetY);
     }
 
+    /**
+     * To process human inputs
+     */
     public void resolveControls(KeyHandler keyHandler) {
+        this.keyHandler.setUpPressed(keyHandler.isUpPressed());
+        this.keyHandler.setRightPressed(keyHandler.isRightPressed());
+        this.keyHandler.setDownPressed(keyHandler.isDownPressed());
+        this.keyHandler.setLeftPressed(keyHandler.isLeftPressed());
+        this.keyHandler.setSpacePressed(keyHandler.isSpacePressed());
+
+        applyVirtualKeys(this.keyHandler);
+    }
+
+    /**
+     * To process AI inputs
+     */
+    public void resolveControlsAutomatically(Rectangle player, Rectangle base) {
+        if (bot != null) {
+            bot.pressAnyKeys(keyHandler, hitBox, player, base);
+            applyVirtualKeys(this.keyHandler);
+        }
+    }
+
+    private void applyVirtualKeys(VirtualKeyHandler keyHandler) {
         if (keyHandler.isUpPressed() && !keyHandler.isRightPressed() && !keyHandler.isDownPressed() && !keyHandler.isLeftPressed()) {
             isMoving = true;
             if (!MoveDirection.NORTH.equals(moveDirection)) {

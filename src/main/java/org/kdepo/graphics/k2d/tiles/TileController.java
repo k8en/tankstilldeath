@@ -173,13 +173,13 @@ public class TileController {
         }
 
         int tileXBottomRight = (int) ((rectangle.getX() + rectangle.getWidth()) / 16);
-        if (tileXBottomRight >= 80) {
-            tileXBottomRight = 80;
+        if (tileXBottomRight > 79) {
+            tileXBottomRight = 79;
         }
 
         int tileYBottomRight = (int) ((rectangle.getY() + rectangle.getHeight()) / 16);
-        if (tileYBottomRight >= 60) {
-            tileYBottomRight = 60;
+        if (tileYBottomRight > 59) {
+            tileYBottomRight = 59;
         }
 
         for (int y = tileYTopLeft; y <= tileYBottomRight; y++) {
