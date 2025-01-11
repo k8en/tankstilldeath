@@ -45,6 +45,11 @@ public class Rectangle extends Point {
         this.y = cy - height / 2;
     }
 
+    public void setCenter(Point center) {
+        this.x = center.getX() - width / 2;
+        this.y = center.getY() - height / 2;
+    }
+
     @Override
     public String toString() {
         return "Rectangle{" +

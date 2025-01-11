@@ -37,6 +37,15 @@ public class Bonus extends AbstractHittableGameObject {
         } else if (Constants.Bonuses.SHIELD_ID == bonusId) {
             animationMap = resourcesController.getAnimations("animation_bonus_01");
 
+        } else if (Constants.Bonuses.TANK_ID == bonusId) {
+            animationMap = resourcesController.getAnimations("animation_bonus_02");
+
+        } else if (Constants.Bonuses.GRENADE_ID == bonusId) {
+            animationMap = resourcesController.getAnimations("animation_bonus_03");
+
+        } else if (Constants.Bonuses.SHOVEL_ID == bonusId) {
+            animationMap = resourcesController.getAnimations("animation_bonus_04");
+
         }
 
         if (animationMap == null) {
@@ -57,7 +66,7 @@ public class Bonus extends AbstractHittableGameObject {
         hitBox.setWidth(this.width);
         hitBox.setHeight(this.height);
 
-        timer = System.currentTimeMillis() + 10000;
+        timer = System.currentTimeMillis() + 100000;
     }
 
     @Override

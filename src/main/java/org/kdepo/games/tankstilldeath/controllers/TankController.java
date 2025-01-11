@@ -85,7 +85,7 @@ public class TankController {
 
                         Element tankConfigurationElement = (Element) tankConfigurationNode;
 
-                        int id = DomUtils.resolveIntAttribute(tankConfigurationElement, "id");
+                        int tankId = DomUtils.resolveIntAttribute(tankConfigurationElement, "tank_id");
                         String animationsName = DomUtils.resolveStringAttribute(tankConfigurationElement, "animations");
                         double movementSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "movement_speed");
                         double reloadingSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "reloading_speed");
@@ -105,7 +105,7 @@ public class TankController {
                         int armorTypeId = DomUtils.resolveIntAttribute(tankConfigurationElement, "armor_type_id");
 
                         TankConfiguration tankConfiguration = new TankConfiguration(
-                                id,
+                                tankId,
                                 animationsName,
                                 movementSpeed,
                                 reloadingSpeed,
@@ -185,10 +185,10 @@ public class TankController {
 
                         Element tankToSpawnElement = (Element) tankToSpawnNode;
 
-                        int id = DomUtils.resolveIntAttribute(tankToSpawnElement, "id");
+                        int tankId = DomUtils.resolveIntAttribute(tankToSpawnElement, "tank_id");
                         int teamId = DomUtils.resolveIntAttribute(tankToSpawnElement, "team_id");
 
-                        Tank tank = prepareTank(id, teamId, 0, 0, MoveDirection.NORTH);
+                        Tank tank = prepareTank(tankId, teamId, 0, 0, MoveDirection.NORTH);
                         tanksToSpawnList.add(tank);
                     }
                 }
@@ -198,9 +198,10 @@ public class TankController {
         return tanksToSpawnList;
     }
 
-    public Tank prepareTank(int id, int team, double x, double y, MoveDirection moveDirection) {
-        TankConfiguration tankConfiguration = tankConfigurationMap.get(id);
+    public Tank prepareTank(int tankId, int team, double x, double y, MoveDirection moveDirection) {
+        TankConfiguration tankConfiguration = tankConfigurationMap.get(tankId);
         return new Tank(
+                tankId,
                 tankConfiguration.getAnimationsCollectionName(),
                 x, y,
                 team,

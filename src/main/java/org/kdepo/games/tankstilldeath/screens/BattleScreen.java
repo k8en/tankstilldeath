@@ -110,8 +110,14 @@ public class BattleScreen extends AbstractScreen {
             throw new RuntimeException("Player spawn spot is not found for map: " + resourcesController.getPath() + mapResource.getPath());
         }
 
-        spawnBonus(500, 500, Constants.Bonuses.STAR_ID);
-        spawnBonus(600, 500, Constants.Bonuses.SHIELD_ID);
+        // Test bonuses placement
+        int bonusX = Constants.SCREEN_WIDTH / 6 - 16;
+        int bonusY = Constants.SCREEN_HEIGHT / 2 - 16;
+        spawnBonus(bonusX + bonusX * 0, bonusY, Constants.Bonuses.STAR_ID);
+        spawnBonus(bonusX + bonusX * 1, bonusY, Constants.Bonuses.SHIELD_ID);
+        spawnBonus(bonusX + bonusX * 2, bonusY, Constants.Bonuses.TANK_ID);
+        spawnBonus(bonusX + bonusX * 3, bonusY, Constants.Bonuses.GRENADE_ID);
+        spawnBonus(bonusX + bonusX * 4, bonusY, Constants.Bonuses.SHOVEL_ID);
     }
 
     @Override
@@ -189,17 +195,19 @@ public class BattleScreen extends AbstractScreen {
         }
 
         // Check if bullet hit a base
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                if (CollisionsChecker.hasCollision(base.getHitBox(), bullet.getHitBox())) {
-                    bullet.setActive(false);
-                    base.setActive(false);
-                    Point baseCenter = base.getCenter();
-                    spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
+        if (base.isActive()) {
+            for (Bullet bullet : bulletList) {
+                if (bullet.isActive()) {
+                    if (CollisionsChecker.hasCollision(base.getHitBox(), bullet.getHitBox())) {
+                        bullet.setActive(false);
+                        base.setActive(false);
+                        Point baseCenter = base.getCenter();
+                        spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
 
-                    // TODO player win condition
-                    //..
-                    System.out.println("player lose (base)");
+                        // TODO player win condition
+                        //..
+                        System.out.println("player lose (base)");
+                    }
                 }
             }
         }
@@ -212,10 +220,15 @@ public class BattleScreen extends AbstractScreen {
                     Tank tank = it.next();
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
-                        updateTankArmourOnHit(tank, bullet);
-                        boolean isTankDestroyed = updateTankIsDestroyed(tank, bullet);
-                        if (isTankDestroyed) {
-                            it.remove();
+                        if (tank.isProtectedByShield()) {
+                            Point bulletCenter = bullet.getCenter();
+                            spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
+                        } else {
+                            updateTankArmourOnHit(tank, bullet);
+                            boolean isTankDestroyed = updateTankIsDestroyed(tank, bullet);
+                            if (isTankDestroyed) {
+                                it.remove();
+                            }
                         }
                     }
                 }
@@ -228,11 +241,16 @@ public class BattleScreen extends AbstractScreen {
                 if (bullet.isActive()) {
                     if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bullet.getHitBox())) {
                         bullet.setActive(false);
-                        updateTankArmourOnHit(playerTank, bullet);
-                        boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
-                        if (isTankDestroyed) {
-                            playerTank.setActive(false);
-                            playerTanksCounter = playerTanksCounter - 1;
+                        if (playerTank.isProtectedByShield()) {
+                            Point bulletCenter = bullet.getCenter();
+                            spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
+                        } else {
+                            updateTankArmourOnHit(playerTank, bullet);
+                            boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
+                            if (isTankDestroyed) {
+                                playerTank.setActive(false);
+                                playerTanksCounter = playerTanksCounter - 1;
+                            }
                         }
                     }
                 }
@@ -255,8 +273,33 @@ public class BattleScreen extends AbstractScreen {
                 if (bonus.isActive()) {
                     if (CollisionsChecker.hasCollision(tank.getHitBox(), bonus.getHitBox())) {
                         bonus.setActive(false);
-                        // TODO apply bonus effects
-                        //..
+
+                        if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
+                            tank.increaseReloadingSpeed();
+                            tank.increaseMoveSpeed();
+
+                        } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
+                            tank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
+
+                        } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
+                            Tank additionalTank = tankController.prepareTank(tank.getTankId(), tank.getTeamId(), 0, 0, MoveDirection.NORTH);
+                            additionalTank.setMoveSpeed(tank.getMoveSpeed());
+                            additionalTank.setBulletTypeId(tank.getBulletTypeId());
+
+                        } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
+                            if (playerTank.isActive()) {
+                                Point playerTankCenter = playerTank.getCenter();
+                                spawnExplosion(playerTankCenter.getX(), playerTankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
+                                playerTank.setActive(false);
+                                playerTanksCounter = playerTanksCounter - 1;
+                            }
+
+                        } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
+                            tileController.setTilesAround(Constants.Tiles.NO_TILE, base.getHitBox());
+
+                        } else {
+                            throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
+                        }
                     }
                 }
             }
@@ -283,8 +326,33 @@ public class BattleScreen extends AbstractScreen {
                 if (bonus.isActive()) {
                     if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
                         bonus.setActive(false);
-                        // TODO apply bonus effects
-                        //..
+
+                        if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
+                            playerTank.increaseReloadingSpeed();
+                            playerTank.increaseMoveSpeed();
+
+                        } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
+                            playerTank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
+
+                        } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
+                            playerTanksCounter = playerTanksCounter + 1;
+
+                        } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
+                            ListIterator<Tank> it = activeTanksList.listIterator();
+                            while (it.hasNext()) {
+                                Tank tank = it.next();
+                                Point tankCenter = tank.getCenter();
+                                spawnExplosion(tankCenter.getX(), tankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
+                                tank.setActive(false);
+                                it.remove();
+                            }
+
+                        } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
+                            tileController.setTilesAround(Constants.Tiles.CONCRETE_BLOCK_ID, base.getHitBox());
+
+                        } else {
+                            throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
+                        }
                     }
                 }
             }
@@ -452,9 +520,6 @@ public class BattleScreen extends AbstractScreen {
     }
 
     public void updateTankArmourOnHit(Tank tank, Bullet bullet) {
-        // TODO check if tank has a shield
-        //..
-
         // Update tank armour according to bullet power
         if (bullet.getBulletId() == Constants.Bullets.STANDARD_ID) {
             tank.changeArmour(-1);

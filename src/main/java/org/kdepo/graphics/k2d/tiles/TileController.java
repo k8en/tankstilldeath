@@ -136,6 +136,55 @@ public class TileController {
         }
     }
 
+    public void setTilesAround(int tileId, Rectangle rect) {
+        TileConfiguration tileConfiguration = tileConfigurationMap.get(tileId);
+
+        int topLeftTileX = (int) (rect.getX() / 16) - 1;
+        int topLeftTileY = (int) (rect.getY() / 16) - 1;
+        //int bottomRightTileX = (int) (rect.getX() + rect.getWidth()) / 16 + 1;
+        //int bottomRightTileY = (int) (rect.getY() + rect.getHeight()) / 16 + 1;
+        int bottomRightTileX = topLeftTileX + 5;
+        int bottomRightTileY = topLeftTileY + 5;
+
+        int y1 = topLeftTileY;
+        int y2 = bottomRightTileY;
+        for (int x = topLeftTileX; x <= bottomRightTileX; x++) {
+            if (y1 >= 0 && y1 <= 59 && x >= 0 && x <= 79) {
+                Tile tile = null;
+                if (tileConfiguration != null) {
+                    tile = new Tile(tileId, x, y1, x * 16, y1 * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
+                }
+                layerData1[y1][x] = tile;
+            }
+            if (y2 >= 0 && y2 <= 59 && x >= 0 && x <= 79) {
+                Tile tile = null;
+                if (tileConfiguration != null) {
+                    tile = new Tile(tileId, x, y2, x * 16, y2 * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
+                }
+                layerData1[y2][x] = tile;
+            }
+        }
+
+        int x1 = topLeftTileX;
+        int x2 = bottomRightTileX;
+        for (int y = topLeftTileY; y <= bottomRightTileY; y++) {
+            if (x1 >= 0 && x1 <= 79 && y >= 0 && y <= 59) {
+                Tile tile = null;
+                if (tileConfiguration != null) {
+                    tile = new Tile(tileId, x1, y, x1 * 16, y * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
+                }
+                layerData1[y][x1] = tile;
+            }
+            if (x2 >= 0 && x2 <= 79 && y >= 0 && y <= 59) {
+                Tile tile = null;
+                if (tileConfiguration != null) {
+                    tile = new Tile(tileId, x2, y, x2 * 16, y * 16, tileConfiguration.getImage(), tileConfiguration.getHitBox());
+                }
+                layerData1[y][x2] = tile;
+            }
+        }
+    }
+
     public void removeTile(int layer, int tileX, int tileY) {
         if (TileController.LAYER_BOTTOM == layer) {
             layerData0[tileY][tileX] = null;

@@ -10,10 +10,12 @@ import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
+import java.awt.*;
 import java.util.Map;
 
 public class Tank extends AbstractHittableGameObject {
 
+    private final int tankId;
     private final int teamId;
 
     private MoveDirection moveDirection;
@@ -29,6 +31,10 @@ public class Tank extends AbstractHittableGameObject {
 
     private int armour;
 
+    private boolean isProtectedByShield;
+    private long shieldTimer;
+    private ShieldEffect shieldEffect;
+
     private int bulletTypeId;
     private int bulletOffsetNorthX;
     private int bulletOffsetNorthY;
@@ -39,10 +45,11 @@ public class Tank extends AbstractHittableGameObject {
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
 
-    private VirtualKeyHandler keyHandler;
+    private final VirtualKeyHandler keyHandler;
     private Bot bot;
 
-    public Tank(String animationMapName,
+    public Tank(int tankId,
+                String animationMapName,
                 double centerX,
                 double centerY,
                 int teamId,
@@ -66,12 +73,16 @@ public class Tank extends AbstractHittableGameObject {
         ResourcesController resourcesController = ResourcesController.getInstance();
 
         // Setup generic parameters
+        this.tankId = tankId;
         this.teamId = teamId;
         this.moveSpeed = moveSpeed;
         isMoving = false;
         this.armour = armour;
         isActive = false;
         this.moveDirection = moveDirection;
+
+        isProtectedByShield = false;
+        shieldEffect = new ShieldEffect();
 
         // Setup animations
         Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
@@ -143,6 +154,28 @@ public class Tank extends AbstractHittableGameObject {
     @Override
     public void update() {
         this.animationController.update();
+
+        if (isProtectedByShield) {
+            if (System.currentTimeMillis() >= shieldTimer) {
+                isProtectedByShield = false;
+                System.out.println("Shield disabled");
+            } else {
+                shieldEffect.setCenter(this.getCenter());
+                shieldEffect.update();
+            }
+        }
+    }
+
+    @Override
+    public void render(Graphics2D g) {
+        super.render(g);
+        if (isProtectedByShield) {
+            shieldEffect.render(g);
+        }
+    }
+
+    public int getTankId() {
+        return tankId;
     }
 
     public int getTeamId() {
@@ -179,6 +212,13 @@ public class Tank extends AbstractHittableGameObject {
         this.moveSpeed = moveSpeed;
     }
 
+    public void increaseMoveSpeed() {
+        moveSpeed = moveSpeed + Constants.TANK_MOVE_SPEED_INCREMENT;
+        if (moveSpeed > Constants.TANK_MOVE_SPEED_LIMIT) {
+            moveSpeed = Constants.TANK_MOVE_SPEED_LIMIT;
+        }
+    }
+
     public int getHitBoxOffsetX() {
         return hitBoxOffsetX;
     }
@@ -206,8 +246,25 @@ public class Tank extends AbstractHittableGameObject {
         }
     }
 
+    public void increaseReloadingSpeed() {
+        reloadingSpeed = reloadingSpeed + Constants.TANK_RELOADING_SPEED_INCREMENT;
+        if (reloadingSpeed > Constants.TANK_RELOADING_SPEED_LIMIT) {
+            reloadingSpeed = Constants.TANK_RELOADING_SPEED_LIMIT;
+            bulletTypeId = Constants.Bullets.ARMOUR_PIERCING_ID;
+        }
+    }
+
     public int getArmour() {
         return armour;
+    }
+
+    public boolean isProtectedByShield() {
+        return isProtectedByShield;
+    }
+
+    public void setProtectedByShield(long millis) {
+        isProtectedByShield = true;
+        shieldTimer = System.currentTimeMillis() + millis;
     }
 
     public void changeArmour(int value) {
@@ -217,6 +274,14 @@ public class Tank extends AbstractHittableGameObject {
         } else if (armour > 3) {
             armour = 3;
         }
+    }
+
+    public int getBulletTypeId() {
+        return bulletTypeId;
+    }
+
+    public void setBulletTypeId(int bulletTypeId) {
+        this.bulletTypeId = bulletTypeId;
     }
 
     public Point getBulletOffset() {

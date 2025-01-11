@@ -5,9 +5,19 @@ public class Constants {
     public static int SCREEN_WIDTH = 1280;
     public static int SCREEN_HEIGHT = 960;
 
+    public static int SHIELD_PROTECTION_TIME = 10000;
+
+    public static int TANK_MOVE_SPEED_LIMIT = 4;
+    public static double TANK_MOVE_SPEED_INCREMENT = 0.5d;
+    public static int TANK_RELOADING_SPEED_LIMIT = 4;
+    public static double TANK_RELOADING_SPEED_INCREMENT = 0.5d;
+
     public interface Bonuses {
         int STAR_ID = 0;
         int SHIELD_ID = 1;
+        int TANK_ID = 2;
+        int GRENADE_ID = 3;
+        int SHOVEL_ID = 4;
     }
 
     public interface Bullets {
@@ -43,6 +53,7 @@ public class Constants {
     }
 
     public interface Tiles {
+        int NO_TILE = -1;
         int FULL_BRICKS_BLOCK_ID = 2;
         int BRICKS_AT_THE_NORTH_BLOCK_ID = 3;
         int BRICKS_AT_THE_EAST_BLOCK_ID = 4;
