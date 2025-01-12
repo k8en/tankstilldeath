@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SpawnSpotController {
@@ -96,6 +97,7 @@ public class SpawnSpotController {
     }
 
     public SpawnSpot getAvailableSpawnSpot(int teamId) {
+        Collections.shuffle(spawnSpotList);
         for (SpawnSpot spawnSpot : spawnSpotList) {
             if (spawnSpot.getTeamId() == teamId && !spawnSpot.isActive()) {
                 return spawnSpot;

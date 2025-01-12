@@ -1,5 +1,7 @@
 package org.kdepo.games.tankstilldeath.model;
 
+import java.util.Objects;
+
 public class SpawnSpot extends AbstractGameObject {
 
     private long timer;
@@ -33,6 +35,21 @@ public class SpawnSpot extends AbstractGameObject {
         if (System.currentTimeMillis() > timer) {
             isActive = false;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        SpawnSpot spawnSpot = (SpawnSpot) o;
+        return timer == spawnSpot.timer
+                && teamId == spawnSpot.teamId
+                && moveDirection == spawnSpot.moveDirection;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), timer, teamId, moveDirection);
     }
 
     @Override
