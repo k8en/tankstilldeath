@@ -11,6 +11,7 @@ import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
+import org.kdepo.games.tankstilldeath.model.TankOnDestroyEventType;
 import org.kdepo.games.tankstilldeath.utils.MapDataUtils;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
@@ -29,10 +30,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Random;
 
 public class BattleScreen extends AbstractScreen {
 
     private final ResourcesController resourcesController;
+
+    private final Random randomizer;
 
     private final SpawnSpotController spawnSpotController;
     private final TankController tankController;
@@ -57,6 +61,8 @@ public class BattleScreen extends AbstractScreen {
 
     public BattleScreen() {
         this.name = Constants.Screens.BATTLE;
+
+        randomizer = new Random();
 
         resourcesController = ResourcesController.getInstance();
         spawnSpotController = SpawnSpotController.getInstance();
@@ -227,6 +233,9 @@ public class BattleScreen extends AbstractScreen {
                             updateTankArmourOnHit(tank, bullet);
                             boolean isTankDestroyed = updateTankIsDestroyed(tank, bullet);
                             if (isTankDestroyed) {
+                                if (tank.getOnDestroyEventType() != null) {
+                                    processTankOnDestroyEvent(tank.getOnDestroyEventType());
+                                }
                                 it.remove();
                             }
                         }
@@ -625,5 +634,36 @@ public class BattleScreen extends AbstractScreen {
         playerTank.setActive(true);
 
         System.out.println("Object spawned: " + playerTank);
+    }
+
+    private void processTankOnDestroyEvent(TankOnDestroyEventType onDestroyEventType) {
+        if (TankOnDestroyEventType.SPAWN_BONUS_0.equals(onDestroyEventType)) {
+            int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
+            int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
+            spawnBonus(x, y, Constants.Bonuses.STAR_ID);
+
+        } else if (TankOnDestroyEventType.SPAWN_BONUS_1.equals(onDestroyEventType)) {
+            int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
+            int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
+            spawnBonus(x, y, Constants.Bonuses.SHIELD_ID);
+
+        } else if (TankOnDestroyEventType.SPAWN_BONUS_2.equals(onDestroyEventType)) {
+            int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
+            int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
+            spawnBonus(x, y, Constants.Bonuses.TANK_ID);
+
+        } else if (TankOnDestroyEventType.SPAWN_BONUS_3.equals(onDestroyEventType)) {
+            int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
+            int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
+            spawnBonus(x, y, Constants.Bonuses.GRENADE_ID);
+
+        } else if (TankOnDestroyEventType.SPAWN_BONUS_4.equals(onDestroyEventType)) {
+            int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
+            int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
+            spawnBonus(x, y, Constants.Bonuses.GRENADE_ID);
+
+        } else {
+            throw new RuntimeException("Event processing not implemented for " + onDestroyEventType);
+        }
     }
 }

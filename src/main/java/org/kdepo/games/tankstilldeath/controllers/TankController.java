@@ -3,6 +3,7 @@ package org.kdepo.games.tankstilldeath.controllers;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.Tank;
 import org.kdepo.games.tankstilldeath.model.TankConfiguration;
+import org.kdepo.games.tankstilldeath.model.TankOnDestroyEventType;
 import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -187,8 +188,13 @@ public class TankController {
 
                         int tankId = DomUtils.resolveIntAttribute(tankToSpawnElement, "tank_id");
                         int teamId = DomUtils.resolveIntAttribute(tankToSpawnElement, "team_id");
+                        String onDestroyStr = DomUtils.resolveStringAttribute(tankToSpawnElement, "on_destroy");
 
                         Tank tank = prepareTank(tankId, teamId, 0, 0, MoveDirection.NORTH);
+                        if (!onDestroyStr.isEmpty()) {
+                            TankOnDestroyEventType onDestroy = TankOnDestroyEventType.valueOf(onDestroyStr.toUpperCase());
+                            tank.setOnDestroyEventType(onDestroy);
+                        }
                         tanksToSpawnList.add(tank);
                     }
                 }
