@@ -8,10 +8,11 @@ import org.kdepo.graphics.k2d.geometry.Rectangle;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class Bullet extends AbstractHittableGameObject {
 
-    private int bulletId;
+    private int bulletTypeId;
 
     private int teamId;
 
@@ -66,12 +67,12 @@ public class Bullet extends AbstractHittableGameObject {
         animationController.update();
     }
 
-    public int getBulletId() {
-        return bulletId;
+    public int getBulletTypeId() {
+        return bulletTypeId;
     }
 
-    public void setBulletId(int bulletId) {
-        this.bulletId = bulletId;
+    public void setBulletTypeId(int bulletTypeId) {
+        this.bulletTypeId = bulletTypeId;
     }
 
     public int getTeamId() {
@@ -96,5 +97,31 @@ public class Bullet extends AbstractHittableGameObject {
 
     public void setMoveSpeed(double moveSpeed) {
         this.moveSpeed = moveSpeed;
+    }
+
+    @Override
+    public String toString() {
+        return "Bullet{" +
+                "bulletTypeId=" + bulletTypeId +
+                ", teamId=" + teamId +
+                ", moveDirection=" + moveDirection +
+                ", moveSpeed=" + moveSpeed +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Bullet bullet = (Bullet) o;
+        return bulletTypeId == bullet.bulletTypeId
+                && teamId == bullet.teamId
+                && Double.compare(moveSpeed, bullet.moveSpeed) == 0
+                && moveDirection == bullet.moveDirection;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), bulletTypeId, teamId, moveDirection, moveSpeed);
     }
 }

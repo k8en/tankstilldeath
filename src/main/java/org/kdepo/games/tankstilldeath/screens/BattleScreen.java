@@ -156,28 +156,28 @@ public class BattleScreen extends AbstractScreen {
 
                     if (tile.getId() == Constants.Tiles.FULL_BRICKS_BLOCK_ID) {
                         if (MoveDirection.NORTH.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletId()) {
+                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
                                 tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_NORTH_BLOCK_ID);
                             } else {
                                 tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                             }
 
                         } else if (MoveDirection.EAST.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletId()) {
+                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
                                 tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_EAST_BLOCK_ID);
                             } else {
                                 tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                             }
 
                         } else if (MoveDirection.SOUTH.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletId()) {
+                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
                                 tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_SOUTH_BLOCK_ID);
                             } else {
                                 tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                             }
 
                         } else if (MoveDirection.WEST.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletId()) {
+                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
                                 tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_WEST_BLOCK_ID);
                             } else {
                                 tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
@@ -192,7 +192,7 @@ public class BattleScreen extends AbstractScreen {
                         tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
 
                     } else if (tile.getId() == Constants.Tiles.CONCRETE_BLOCK_ID) {
-                        if (Constants.Bullets.ARMOUR_PIERCING_ID == bullet.getBulletId()) {
+                        if (Constants.Bullets.ARMOUR_PIERCING_ID == bullet.getBulletTypeId()) {
                             tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                         }
                     }
@@ -482,7 +482,8 @@ public class BattleScreen extends AbstractScreen {
                     tank.getX() + bulletOffset.getX(),
                     tank.getY() + bulletOffset.getY(),
                     tank.getMoveDirection(),
-                    tank.getTeamId()
+                    tank.getTeamId(),
+                    tank.getBulletTypeId()
             );
             tank.shot();
 
@@ -530,14 +531,14 @@ public class BattleScreen extends AbstractScreen {
 
     public void updateTankArmourOnHit(Tank tank, Bullet bullet) {
         // Update tank armour according to bullet power
-        if (bullet.getBulletId() == Constants.Bullets.STANDARD_ID) {
+        if (bullet.getBulletTypeId() == Constants.Bullets.STANDARD_ID) {
             tank.changeArmour(-1);
 
-        } else if (bullet.getBulletId() == Constants.Bullets.ARMOUR_PIERCING_ID) {
+        } else if (bullet.getBulletTypeId() == Constants.Bullets.ARMOUR_PIERCING_ID) {
             tank.changeArmour(-3);
 
         } else {
-            throw new RuntimeException("Collision is not implemented for bullet id " + bullet.getBulletId());
+            throw new RuntimeException("Collision is not implemented for bullet id " + bullet.getBulletTypeId());
         }
     }
 
@@ -563,7 +564,7 @@ public class BattleScreen extends AbstractScreen {
         }
     }
 
-    private void spawnBullet(double x, double y, MoveDirection moveDirection, int teamId) {
+    private void spawnBullet(double x, double y, MoveDirection moveDirection, int teamId, int bulletTypeId) {
         Bullet bulletToSpawn = null;
         for (Bullet bullet : bulletList) {
             if (!bullet.isActive()) {
@@ -574,16 +575,16 @@ public class BattleScreen extends AbstractScreen {
 
         if (bulletToSpawn == null) {
             bulletToSpawn = new Bullet(x, y, moveDirection);
-            bulletToSpawn.setTeamId(teamId);
-            bulletToSpawn.setActive(true);
             bulletList.add(bulletToSpawn);
         } else {
             bulletToSpawn.setX(x);
             bulletToSpawn.setY(y);
             bulletToSpawn.setMoveDirection(moveDirection);
-            bulletToSpawn.setTeamId(teamId);
-            bulletToSpawn.setActive(true);
         }
+
+        bulletToSpawn.setTeamId(teamId);
+        bulletToSpawn.setBulletTypeId(bulletTypeId);
+        bulletToSpawn.setActive(true);
     }
 
     public void spawnExplosion(double centerX, double centerY, String animationMapName) {
