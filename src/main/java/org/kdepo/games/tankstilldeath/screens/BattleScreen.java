@@ -115,15 +115,6 @@ public class BattleScreen extends AbstractScreen {
         } else {
             throw new RuntimeException("Player spawn spot is not found for map: " + resourcesController.getPath() + mapResource.getPath());
         }
-
-        // Test bonuses placement
-        int bonusX = Constants.SCREEN_WIDTH / 6 - 16;
-        int bonusY = Constants.SCREEN_HEIGHT / 2 - 16;
-        spawnBonus(bonusX + bonusX * 0, bonusY, Constants.Bonuses.STAR_ID);
-        spawnBonus(bonusX + bonusX * 1, bonusY, Constants.Bonuses.SHIELD_ID);
-        spawnBonus(bonusX + bonusX * 2, bonusY, Constants.Bonuses.TANK_ID);
-        spawnBonus(bonusX + bonusX * 3, bonusY, Constants.Bonuses.GRENADE_ID);
-        spawnBonus(bonusX + bonusX * 4, bonusY, Constants.Bonuses.SHOVEL_ID);
     }
 
     @Override
