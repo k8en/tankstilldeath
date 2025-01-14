@@ -62,7 +62,7 @@ public class BattleScreen extends AbstractScreen {
     public BattleScreen() {
         this.name = Constants.Screens.BATTLE;
 
-        randomizer = new Random();
+        randomizer = new Random(System.currentTimeMillis());
 
         resourcesController = ResourcesController.getInstance();
         spawnSpotController = SpawnSpotController.getInstance();
@@ -545,7 +545,7 @@ public class BattleScreen extends AbstractScreen {
     public void spawnBonus(double x, double y, int bonusId) {
         Bonus bonusToSpawn = null;
         for (Bonus bonus : bonusList) {
-            if (!bonus.isActive()) {
+            if (!bonus.isActive() && bonus.getBonusId() == bonusId) {
                 bonusToSpawn = bonus;
                 break;
             }
