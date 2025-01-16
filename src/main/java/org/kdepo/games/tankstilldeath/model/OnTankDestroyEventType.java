@@ -1,6 +1,6 @@
 package org.kdepo.games.tankstilldeath.model;
 
-public enum TankOnDestroyEventType {
+public enum OnTankDestroyEventType {
 
     SPAWN_BONUS_0,
     SPAWN_BONUS_1,

@@ -11,7 +11,7 @@ import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
-import org.kdepo.games.tankstilldeath.model.TankOnDestroyEventType;
+import org.kdepo.games.tankstilldeath.model.OnTankDestroyEventType;
 import org.kdepo.games.tankstilldeath.utils.MapDataUtils;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
@@ -628,28 +628,28 @@ public class BattleScreen extends AbstractScreen {
         System.out.println("Object spawned: " + playerTank);
     }
 
-    private void processTankOnDestroyEvent(TankOnDestroyEventType onDestroyEventType) {
-        if (TankOnDestroyEventType.SPAWN_BONUS_0.equals(onDestroyEventType)) {
+    private void processTankOnDestroyEvent(OnTankDestroyEventType onDestroyEventType) {
+        if (OnTankDestroyEventType.SPAWN_BONUS_0.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
             spawnBonus(x, y, Constants.Bonuses.STAR_ID);
 
-        } else if (TankOnDestroyEventType.SPAWN_BONUS_1.equals(onDestroyEventType)) {
+        } else if (OnTankDestroyEventType.SPAWN_BONUS_1.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
             spawnBonus(x, y, Constants.Bonuses.SHIELD_ID);
 
-        } else if (TankOnDestroyEventType.SPAWN_BONUS_2.equals(onDestroyEventType)) {
+        } else if (OnTankDestroyEventType.SPAWN_BONUS_2.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
             spawnBonus(x, y, Constants.Bonuses.TANK_ID);
 
-        } else if (TankOnDestroyEventType.SPAWN_BONUS_3.equals(onDestroyEventType)) {
+        } else if (OnTankDestroyEventType.SPAWN_BONUS_3.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
             spawnBonus(x, y, Constants.Bonuses.GRENADE_ID);
 
-        } else if (TankOnDestroyEventType.SPAWN_BONUS_4.equals(onDestroyEventType)) {
+        } else if (OnTankDestroyEventType.SPAWN_BONUS_4.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
             spawnBonus(x, y, Constants.Bonuses.GRENADE_ID);

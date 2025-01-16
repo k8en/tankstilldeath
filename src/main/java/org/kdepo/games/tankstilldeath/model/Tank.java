@@ -45,7 +45,7 @@ public class Tank extends AbstractHittableGameObject {
     private int bulletOffsetWestX;
     private int bulletOffsetWestY;
 
-    private TankOnDestroyEventType onDestroyEventType;
+    private OnTankDestroyEventType onDestroyEventType;
 
     private final VirtualKeyHandler keyHandler;
     private Bot bot;
@@ -378,11 +378,11 @@ public class Tank extends AbstractHittableGameObject {
         }
     }
 
-    public TankOnDestroyEventType getOnDestroyEventType() {
+    public OnTankDestroyEventType getOnDestroyEventType() {
         return onDestroyEventType;
     }
 
-    public void setOnDestroyEventType(TankOnDestroyEventType onDestroyEventType) {
+    public void setOnDestroyEventType(OnTankDestroyEventType onDestroyEventType) {
         this.onDestroyEventType = onDestroyEventType;
     }
 
