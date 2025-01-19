@@ -12,6 +12,11 @@ public class Constants {
     public static int TANK_RELOADING_SPEED_LIMIT = 4;
     public static double TANK_RELOADING_SPEED_INCREMENT = 0.5d;
 
+    public interface BattleScreenStates {
+        int PLAY = 0;
+        int PAUSE = 1;
+    }
+
     public interface Bonuses {
         int STAR_ID = 0;
         int SHIELD_ID = 1;
@@ -60,6 +65,12 @@ public class Constants {
         int BRICKS_AT_THE_SOUTH_BLOCK_ID = 5;
         int BRICKS_AT_THE_WEST_BLOCK_ID = 6;
         int CONCRETE_BLOCK_ID = 7;
+    }
+
+    public interface UserActions {
+        int NO_ACTION = -1;
+        int CANCEL = 0;
+        int CONFIRM = 1;
     }
 
     private Constants() {

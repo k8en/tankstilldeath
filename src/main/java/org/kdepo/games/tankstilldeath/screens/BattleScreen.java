@@ -3,15 +3,16 @@ package org.kdepo.games.tankstilldeath.screens;
 import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.games.tankstilldeath.controllers.SpawnSpotController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
+import org.kdepo.games.tankstilldeath.gui.PausePopup;
 import org.kdepo.games.tankstilldeath.model.Base;
 import org.kdepo.games.tankstilldeath.model.Bonus;
 import org.kdepo.games.tankstilldeath.model.Bullet;
 import org.kdepo.games.tankstilldeath.model.Explosion;
 import org.kdepo.games.tankstilldeath.model.MapData;
 import org.kdepo.games.tankstilldeath.model.MoveDirection;
+import org.kdepo.games.tankstilldeath.model.OnTankDestroyEventType;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
-import org.kdepo.games.tankstilldeath.model.OnTankDestroyEventType;
 import org.kdepo.games.tankstilldeath.utils.MapDataUtils;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
@@ -37,6 +38,10 @@ public class BattleScreen extends AbstractScreen {
     private final ResourcesController resourcesController;
 
     private final Random randomizer;
+
+    private int state;
+
+    private PausePopup pausePopup;
 
     private final SpawnSpotController spawnSpotController;
     private final TankController tankController;
@@ -86,6 +91,12 @@ public class BattleScreen extends AbstractScreen {
 
     @Override
     public void initialize(Map<String, Object> parameters) {
+        state = Constants.BattleScreenStates.PLAY;
+
+        pausePopup = new PausePopup(400, 300);
+        pausePopup.setCenter((double) Constants.SCREEN_WIDTH / 2, (double) Constants.SCREEN_HEIGHT / 2);
+        pausePopup.setVisible(false);
+
         activeTanksList.clear();
         bonusList.clear();
         bulletList.clear();
@@ -119,299 +130,319 @@ public class BattleScreen extends AbstractScreen {
 
     @Override
     public void update(KeyHandler keyHandler, MouseHandler mouseHandler) {
-        // Update bullets state
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                bullet.update();
+        if (Constants.BattleScreenStates.PLAY == state) {
+            if (keyHandler.isEscapePressed() && pausePopup.isReady()) {
+                state = Constants.BattleScreenStates.PAUSE;
+                pausePopup.show();
             }
-        }
 
-        // Check if bullet is outside the screen
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                if (bullet.getX() < 0 || bullet.getX() > Constants.SCREEN_WIDTH || bullet.getY() < 0 || bullet.getY() > Constants.SCREEN_HEIGHT) {
-                    bullet.setActive(false);
-                }
-            }
-        }
-
-        // Check if bullet hit a tile
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                Point bulletCenter = bullet.getCenter();
-                Tile tile = tileController.getTile(TileController.LAYER_MIDDLE, bulletCenter.getX(), bulletCenter.getY());
-                if (tile != null && CollisionsChecker.hasCollision(tile.getHitBox(), bulletCenter.getX(), bulletCenter.getY())) {
-                    bullet.setActive(false);
-
-                    spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
-
-                    if (tile.getId() == Constants.Tiles.FULL_BRICKS_BLOCK_ID) {
-                        if (MoveDirection.NORTH.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
-                                tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_NORTH_BLOCK_ID);
-                            } else {
-                                tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-                            }
-
-                        } else if (MoveDirection.EAST.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
-                                tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_EAST_BLOCK_ID);
-                            } else {
-                                tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-                            }
-
-                        } else if (MoveDirection.SOUTH.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
-                                tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_SOUTH_BLOCK_ID);
-                            } else {
-                                tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-                            }
-
-                        } else if (MoveDirection.WEST.equals(bullet.getMoveDirection())) {
-                            if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
-                                tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_WEST_BLOCK_ID);
-                            } else {
-                                tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-                            }
-
-                        }
-
-                    } else if (tile.getId() == Constants.Tiles.BRICKS_AT_THE_NORTH_BLOCK_ID
-                            || tile.getId() == Constants.Tiles.BRICKS_AT_THE_EAST_BLOCK_ID
-                            || tile.getId() == Constants.Tiles.BRICKS_AT_THE_SOUTH_BLOCK_ID
-                            || tile.getId() == Constants.Tiles.BRICKS_AT_THE_WEST_BLOCK_ID) {
-                        tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-
-                    } else if (tile.getId() == Constants.Tiles.CONCRETE_BLOCK_ID) {
-                        if (Constants.Bullets.ARMOUR_PIERCING_ID == bullet.getBulletTypeId()) {
-                            tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check if bullet hit a base
-        if (base.isActive()) {
+            // Update bullets state
             for (Bullet bullet : bulletList) {
                 if (bullet.isActive()) {
-                    if (CollisionsChecker.hasCollision(base.getHitBox(), bullet.getHitBox())) {
-                        bullet.setActive(false);
-                        base.setActive(false);
-                        Point baseCenter = base.getCenter();
-                        spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
+                    bullet.update();
+                }
+            }
 
-                        // TODO player win condition
-                        //..
-                        System.out.println("player lose (base)");
+            // Check if bullet is outside the screen
+            for (Bullet bullet : bulletList) {
+                if (bullet.isActive()) {
+                    if (bullet.getX() < 0 || bullet.getX() > Constants.SCREEN_WIDTH || bullet.getY() < 0 || bullet.getY() > Constants.SCREEN_HEIGHT) {
+                        bullet.setActive(false);
                     }
                 }
             }
-        }
 
-        // Check if bullet hit an enemy tank
-        for (Bullet bullet : bulletList) {
-            if (bullet.isActive()) {
-                ListIterator<Tank> it = activeTanksList.listIterator();
-                while (it.hasNext()) {
-                    Tank tank = it.next();
-                    if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
+            // Check if bullet hit a tile
+            for (Bullet bullet : bulletList) {
+                if (bullet.isActive()) {
+                    Point bulletCenter = bullet.getCenter();
+                    Tile tile = tileController.getTile(TileController.LAYER_MIDDLE, bulletCenter.getX(), bulletCenter.getY());
+                    if (tile != null && CollisionsChecker.hasCollision(tile.getHitBox(), bulletCenter.getX(), bulletCenter.getY())) {
                         bullet.setActive(false);
-                        if (tank.isProtectedByShield()) {
-                            Point bulletCenter = bullet.getCenter();
-                            spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
-                        } else {
-                            updateTankArmourOnHit(tank, bullet);
-                            boolean isTankDestroyed = updateTankIsDestroyed(tank, bullet);
-                            if (isTankDestroyed) {
-                                if (tank.getOnDestroyEventType() != null) {
-                                    processTankOnDestroyEvent(tank.getOnDestroyEventType());
+
+                        spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
+
+                        if (tile.getId() == Constants.Tiles.FULL_BRICKS_BLOCK_ID) {
+                            if (MoveDirection.NORTH.equals(bullet.getMoveDirection())) {
+                                if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
+                                    tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_NORTH_BLOCK_ID);
+                                } else {
+                                    tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                                 }
-                                it.remove();
+
+                            } else if (MoveDirection.EAST.equals(bullet.getMoveDirection())) {
+                                if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
+                                    tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_EAST_BLOCK_ID);
+                                } else {
+                                    tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
+                                }
+
+                            } else if (MoveDirection.SOUTH.equals(bullet.getMoveDirection())) {
+                                if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
+                                    tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_SOUTH_BLOCK_ID);
+                                } else {
+                                    tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
+                                }
+
+                            } else if (MoveDirection.WEST.equals(bullet.getMoveDirection())) {
+                                if (Constants.Bullets.STANDARD_ID == bullet.getBulletTypeId()) {
+                                    tileController.setTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY(), Constants.Tiles.BRICKS_AT_THE_WEST_BLOCK_ID);
+                                } else {
+                                    tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
+                                }
+
+                            }
+
+                        } else if (tile.getId() == Constants.Tiles.BRICKS_AT_THE_NORTH_BLOCK_ID
+                                || tile.getId() == Constants.Tiles.BRICKS_AT_THE_EAST_BLOCK_ID
+                                || tile.getId() == Constants.Tiles.BRICKS_AT_THE_SOUTH_BLOCK_ID
+                                || tile.getId() == Constants.Tiles.BRICKS_AT_THE_WEST_BLOCK_ID) {
+                            tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
+
+                        } else if (tile.getId() == Constants.Tiles.CONCRETE_BLOCK_ID) {
+                            if (Constants.Bullets.ARMOUR_PIERCING_ID == bullet.getBulletTypeId()) {
+                                tileController.removeTile(TileController.LAYER_MIDDLE, tile.getTileX(), tile.getTileY());
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Check if bullet hit a player tank
-        if (playerTank.isActive()) {
+            // Check if bullet hit a base
+            if (base.isActive()) {
+                for (Bullet bullet : bulletList) {
+                    if (bullet.isActive()) {
+                        if (CollisionsChecker.hasCollision(base.getHitBox(), bullet.getHitBox())) {
+                            bullet.setActive(false);
+                            base.setActive(false);
+                            Point baseCenter = base.getCenter();
+                            spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
+
+                            // TODO player win condition
+                            //..
+                            System.out.println("player lose (base)");
+                        }
+                    }
+                }
+            }
+
+            // Check if bullet hit an enemy tank
             for (Bullet bullet : bulletList) {
                 if (bullet.isActive()) {
-                    if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bullet.getHitBox())) {
-                        bullet.setActive(false);
-                        if (playerTank.isProtectedByShield()) {
-                            Point bulletCenter = bullet.getCenter();
-                            spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
-                        } else {
-                            updateTankArmourOnHit(playerTank, bullet);
-                            boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
-                            if (isTankDestroyed) {
-                                playerTank.setActive(false);
-                                playerTanksCounter = playerTanksCounter - 1;
+                    ListIterator<Tank> it = activeTanksList.listIterator();
+                    while (it.hasNext()) {
+                        Tank tank = it.next();
+                        if (CollisionsChecker.hasCollision(tank.getHitBox(), bullet.getHitBox())) {
+                            bullet.setActive(false);
+                            if (tank.isProtectedByShield()) {
+                                Point bulletCenter = bullet.getCenter();
+                                spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
+                            } else {
+                                updateTankArmourOnHit(tank, bullet);
+                                boolean isTankDestroyed = updateTankIsDestroyed(tank, bullet);
+                                if (isTankDestroyed) {
+                                    if (tank.getOnDestroyEventType() != null) {
+                                        processTankOnDestroyEvent(tank.getOnDestroyEventType());
+                                    }
+                                    it.remove();
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Process active tanks
-        for (Tank tank : activeTanksList) {
-            tank.resolveControlsAutomatically(
-                    playerTank.getHitBox(),
-                    base.getHitBox()
-            );
-
-            if (tank.isMoving()) {
-                updateTankMovement(tank);
-            }
-
-            // Check for enemy tanks collisions with bonus
-            for (Bonus bonus : bonusList) {
-                if (bonus.isActive()) {
-                    if (CollisionsChecker.hasCollision(tank.getHitBox(), bonus.getHitBox())) {
-                        bonus.setActive(false);
-
-                        if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
-                            tank.increaseReloadingSpeed();
-                            tank.increaseMoveSpeed();
-
-                        } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
-                            tank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
-
-                        } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
-                            Tank additionalTank = tankController.prepareTank(tank.getTankId(), tank.getTeamId(), 0, 0, MoveDirection.NORTH);
-                            additionalTank.setMoveSpeed(tank.getMoveSpeed());
-                            additionalTank.setBulletTypeId(tank.getBulletTypeId());
-
-                        } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
-                            if (playerTank.isActive()) {
-                                Point playerTankCenter = playerTank.getCenter();
-                                spawnExplosion(playerTankCenter.getX(), playerTankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
-                                playerTank.setActive(false);
-                                playerTanksCounter = playerTanksCounter - 1;
+            // Check if bullet hit a player tank
+            if (playerTank.isActive()) {
+                for (Bullet bullet : bulletList) {
+                    if (bullet.isActive()) {
+                        if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bullet.getHitBox())) {
+                            bullet.setActive(false);
+                            if (playerTank.isProtectedByShield()) {
+                                Point bulletCenter = bullet.getCenter();
+                                spawnExplosion(bulletCenter.getX(), bulletCenter.getY(), Constants.Explosions.ANIMATION_SMALL);
+                            } else {
+                                updateTankArmourOnHit(playerTank, bullet);
+                                boolean isTankDestroyed = updateTankIsDestroyed(playerTank, bullet);
+                                if (isTankDestroyed) {
+                                    playerTank.setActive(false);
+                                    playerTanksCounter = playerTanksCounter - 1;
+                                }
                             }
-
-                        } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
-                            tileController.setTilesAround(Constants.Tiles.NO_TILE, base.getHitBox());
-
-                        } else {
-                            throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
                         }
                     }
                 }
             }
 
-            // Process weaponry
-            updateTankWeaponry(tank);
+            // Process active tanks
+            for (Tank tank : activeTanksList) {
+                tank.resolveControlsAutomatically(
+                        playerTank.getHitBox(),
+                        base.getHitBox()
+                );
+
+                if (tank.isMoving()) {
+                    updateTankMovement(tank);
+                }
+
+                // Check for enemy tanks collisions with bonus
+                for (Bonus bonus : bonusList) {
+                    if (bonus.isActive()) {
+                        if (CollisionsChecker.hasCollision(tank.getHitBox(), bonus.getHitBox())) {
+                            bonus.setActive(false);
+
+                            if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
+                                tank.increaseReloadingSpeed();
+                                tank.increaseMoveSpeed();
+
+                            } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
+                                tank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
+
+                            } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
+                                Tank additionalTank = tankController.prepareTank(tank.getTankId(), tank.getTeamId(), 0, 0, MoveDirection.NORTH);
+                                additionalTank.setMoveSpeed(tank.getMoveSpeed());
+                                additionalTank.setBulletTypeId(tank.getBulletTypeId());
+
+                            } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
+                                if (playerTank.isActive()) {
+                                    Point playerTankCenter = playerTank.getCenter();
+                                    spawnExplosion(playerTankCenter.getX(), playerTankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
+                                    playerTank.setActive(false);
+                                    playerTanksCounter = playerTanksCounter - 1;
+                                }
+
+                            } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
+                                tileController.setTilesAround(Constants.Tiles.NO_TILE, base.getHitBox());
+
+                            } else {
+                                throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
+                            }
+                        }
+                    }
+                }
+
+                // Process weaponry
+                updateTankWeaponry(tank);
+
+                // Update animations
+                tank.update();
+            }
+
+            // Process player tank
+            if (playerTank.isActive()) {
+                playerTank.resolveControls(keyHandler);
+            }
+
+            if (playerTank.isActive() && playerTank.isMoving()) {
+                updateTankMovement(playerTank);
+            }
+
+            // Check for player tank collision with bonus
+            if (playerTank.isActive()) {
+                for (Bonus bonus : bonusList) {
+                    if (bonus.isActive()) {
+                        if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
+                            bonus.setActive(false);
+
+                            if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
+                                playerTank.increaseReloadingSpeed();
+                                playerTank.increaseMoveSpeed();
+
+                            } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
+                                playerTank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
+
+                            } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
+                                playerTanksCounter = playerTanksCounter + 1;
+
+                            } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
+                                ListIterator<Tank> it = activeTanksList.listIterator();
+                                while (it.hasNext()) {
+                                    Tank tank = it.next();
+                                    Point tankCenter = tank.getCenter();
+                                    spawnExplosion(tankCenter.getX(), tankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
+                                    tank.setActive(false);
+                                    it.remove();
+                                }
+
+                            } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
+                                tileController.setTilesAround(Constants.Tiles.CONCRETE_BLOCK_ID, base.getHitBox());
+
+                            } else {
+                                throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Process player tank weaponry
+            if (playerTank.isActive()) {
+                updateTankWeaponry(playerTank);
+            }
 
             // Update animations
-            tank.update();
-        }
+            if (playerTank.isActive()) {
+                playerTank.update();
+            }
 
-        // Process player tank
-        if (playerTank.isActive()) {
-            playerTank.resolveControls(keyHandler);
-        }
-
-        if (playerTank.isActive() && playerTank.isMoving()) {
-            updateTankMovement(playerTank);
-        }
-
-        // Check for player tank collision with bonus
-        if (playerTank.isActive()) {
-            for (Bonus bonus : bonusList) {
-                if (bonus.isActive()) {
-                    if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
-                        bonus.setActive(false);
-
-                        if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
-                            playerTank.increaseReloadingSpeed();
-                            playerTank.increaseMoveSpeed();
-
-                        } else if (Constants.Bonuses.SHIELD_ID == bonus.getBonusId()) {
-                            playerTank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
-
-                        } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
-                            playerTanksCounter = playerTanksCounter + 1;
-
-                        } else if (Constants.Bonuses.GRENADE_ID == bonus.getBonusId()) {
-                            ListIterator<Tank> it = activeTanksList.listIterator();
-                            while (it.hasNext()) {
-                                Tank tank = it.next();
-                                Point tankCenter = tank.getCenter();
-                                spawnExplosion(tankCenter.getX(), tankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
-                                tank.setActive(false);
-                                it.remove();
-                            }
-
-                        } else if (Constants.Bonuses.SHOVEL_ID == bonus.getBonusId()) {
-                            tileController.setTilesAround(Constants.Tiles.CONCRETE_BLOCK_ID, base.getHitBox());
-
-                        } else {
-                            throw new RuntimeException("Cannot resolve effect for bonus id " + bonus.getBonusId());
-                        }
+            // Update enemy tanks list on a screen
+            if (tanksToSpawnList.isEmpty()) {
+                if (activeTanksList.isEmpty()) {
+                    // TODO player win condition
+                    //..
+                    System.out.println("player win");
+                }
+            } else {
+                if (activeTanksList.size() < activeTanksLimit) {
+                    SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.ENEMY_ID);
+                    if (spawnSpot != null) {
+                        spawnEnemyTank(spawnSpot);
                     }
                 }
             }
-        }
 
-        // Process player tank weaponry
-        if (playerTank.isActive()) {
-            updateTankWeaponry(playerTank);
-        }
-
-        // Update animations
-        if (playerTank.isActive()) {
-            playerTank.update();
-        }
-
-        // Update enemy tanks list on a screen
-        if (tanksToSpawnList.isEmpty()) {
-            if (activeTanksList.isEmpty()) {
-                // TODO player win condition
-                //..
-                System.out.println("player win");
-            }
-        } else {
-            if (activeTanksList.size() < activeTanksLimit) {
-                SpawnSpot spawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.ENEMY_ID);
-                if (spawnSpot != null) {
-                    spawnEnemyTank(spawnSpot);
+            // Update player tank presence on a screen
+            if (!playerTank.isActive()) {
+                if (playerTanksCounter > 0) {
+                    SpawnSpot playerSpawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.PLAYER_ID);
+                    if (playerSpawnSpot != null) {
+                        spawnPlayerTank(playerSpawnSpot);
+                    }
+                } else {
+                    // TODO player lose condition
+                    //..
+                    System.out.println("player lose");
                 }
             }
-        }
 
-        // Update player tank presence on a screen
-        if (!playerTank.isActive()) {
-            if (playerTanksCounter > 0) {
-                SpawnSpot playerSpawnSpot = spawnSpotController.getAvailableSpawnSpot(Constants.Teams.PLAYER_ID);
-                if (playerSpawnSpot != null) {
-                    spawnPlayerTank(playerSpawnSpot);
+            // Update spawn spots state
+            spawnSpotController.update();
+
+            // Update bonuses state
+            for (Bonus bonus : bonusList) {
+                if (bonus.isActive()) {
+                    bonus.update();
                 }
-            } else {
-                // TODO player lose condition
-                //..
-                System.out.println("player lose");
             }
-        }
 
-        // Update spawn spots state
-        spawnSpotController.update();
-
-        // Update bonuses state
-        for (Bonus bonus : bonusList) {
-            if (bonus.isActive()) {
-                bonus.update();
+            // Update explosions state
+            for (Explosion explosion : explosionList) {
+                if (explosion.isActive()) {
+                    explosion.update();
+                }
             }
-        }
 
-        // Update explosions state
-        for (Explosion explosion : explosionList) {
-            if (explosion.isActive()) {
-                explosion.update();
+        } else if (Constants.BattleScreenStates.PAUSE == state) {
+            pausePopup.update(keyHandler, mouseHandler);
+            if (pausePopup.isReady()) {
+                if (Constants.UserActions.CANCEL == pausePopup.getUserAction()) {
+                    state = Constants.BattleScreenStates.PLAY;
+                    pausePopup.hide();
+                } else if (Constants.UserActions.CONFIRM == pausePopup.getUserAction()) {
+                    //TODO switch to some screen
+                    pausePopup.hide();
+                    System.out.println("Exit");
+                }
             }
         }
     }
@@ -455,6 +486,10 @@ public class BattleScreen extends AbstractScreen {
         }
 
         tileController.render(g, TileController.LAYER_TOP);
+
+        if (Constants.BattleScreenStates.PAUSE == state) {
+            pausePopup.render(g);
+        }
 
         font13x15o.render(g, "This is a test", 10, 10);
     }

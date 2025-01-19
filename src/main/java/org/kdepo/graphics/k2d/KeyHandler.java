@@ -5,6 +5,10 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
+    public boolean isEscapePressed;
+
+    public boolean isEnterPressed;
+
     public boolean isSpacePressed;
 
     public boolean isUpPressed;
@@ -23,6 +27,12 @@ public class KeyHandler implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
+        if (code == KeyEvent.VK_ESCAPE) {
+            isEscapePressed = true;
+        }
+        if (code == KeyEvent.VK_ENTER) {
+            isEnterPressed = true;
+        }
         if (code == KeyEvent.VK_SPACE) {
             isSpacePressed = true;
         }
@@ -44,6 +54,12 @@ public class KeyHandler implements KeyListener {
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
 
+        if (code == KeyEvent.VK_ESCAPE) {
+            isEscapePressed = false;
+        }
+        if (code == KeyEvent.VK_ENTER) {
+            isEnterPressed = false;
+        }
         if (code == KeyEvent.VK_SPACE) {
             isSpacePressed = false;
         }
@@ -59,6 +75,14 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_LEFT) {
             isLeftPressed = false;
         }
+    }
+
+    public boolean isEscapePressed() {
+        return isEscapePressed;
+    }
+
+    public boolean isEnterPressed() {
+        return isEnterPressed;
     }
 
     public boolean isSpacePressed() {
@@ -80,5 +104,4 @@ public class KeyHandler implements KeyListener {
     public boolean isLeftPressed() {
         return isLeftPressed;
     }
-
 }
