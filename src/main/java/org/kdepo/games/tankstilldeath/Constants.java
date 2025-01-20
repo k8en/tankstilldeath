@@ -15,6 +15,8 @@ public class Constants {
     public interface BattleScreenStates {
         int PLAY = 0;
         int PAUSE = 1;
+        int WIN = 2;
+        int LOSE = 3;
     }
 
     public interface Bonuses {
@@ -50,6 +52,8 @@ public class Constants {
 
     public interface Screens {
         String BATTLE = "battle";
+        String BRIEFING = "briefing";
+        String SUMMARY = "summary";
     }
 
     public interface Teams {

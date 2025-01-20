@@ -3,7 +3,9 @@ package org.kdepo.games.tankstilldeath.screens;
 import org.kdepo.games.tankstilldeath.Constants;
 import org.kdepo.games.tankstilldeath.controllers.SpawnSpotController;
 import org.kdepo.games.tankstilldeath.controllers.TankController;
+import org.kdepo.games.tankstilldeath.gui.DefeatPopup;
 import org.kdepo.games.tankstilldeath.gui.PausePopup;
+import org.kdepo.games.tankstilldeath.gui.VictoryPopup;
 import org.kdepo.games.tankstilldeath.model.Base;
 import org.kdepo.games.tankstilldeath.model.Bonus;
 import org.kdepo.games.tankstilldeath.model.Bullet;
@@ -36,12 +38,15 @@ import java.util.Random;
 public class BattleScreen extends AbstractScreen {
 
     private final ResourcesController resourcesController;
+    private Map<String, Object> parameters;
 
     private final Random randomizer;
 
     private int state;
 
+    private DefeatPopup defeatPopup;
     private PausePopup pausePopup;
+    private VictoryPopup victoryPopup;
 
     private final SpawnSpotController spawnSpotController;
     private final TankController tankController;
@@ -92,10 +97,19 @@ public class BattleScreen extends AbstractScreen {
     @Override
     public void initialize(Map<String, Object> parameters) {
         state = Constants.BattleScreenStates.PLAY;
+        this.parameters = parameters;
+
+        defeatPopup = new DefeatPopup(400, 300);
+        defeatPopup.setCenter((double) Constants.SCREEN_WIDTH / 2, (double) Constants.SCREEN_HEIGHT / 2);
+        defeatPopup.setVisible(false);
 
         pausePopup = new PausePopup(400, 300);
         pausePopup.setCenter((double) Constants.SCREEN_WIDTH / 2, (double) Constants.SCREEN_HEIGHT / 2);
         pausePopup.setVisible(false);
+
+        victoryPopup = new VictoryPopup(400, 300);
+        victoryPopup.setCenter((double) Constants.SCREEN_WIDTH / 2, (double) Constants.SCREEN_HEIGHT / 2);
+        victoryPopup.setVisible(false);
 
         activeTanksList.clear();
         bonusList.clear();
@@ -133,6 +147,7 @@ public class BattleScreen extends AbstractScreen {
         if (Constants.BattleScreenStates.PLAY == state) {
             if (keyHandler.isEscapePressed() && pausePopup.isReady()) {
                 state = Constants.BattleScreenStates.PAUSE;
+                System.out.println("Change to PAUSE state");
                 pausePopup.show();
             }
 
@@ -218,9 +233,10 @@ public class BattleScreen extends AbstractScreen {
                             Point baseCenter = base.getCenter();
                             spawnExplosion(baseCenter.getX(), baseCenter.getY(), Constants.Explosions.ANIMATION_BIG);
 
-                            // TODO player win condition
-                            //..
-                            System.out.println("player lose (base)");
+                            state = Constants.BattleScreenStates.LOSE;
+                            System.out.println("Change to LOSE state (no base)");
+
+                            defeatPopup.show();
                         }
                     }
                 }
@@ -388,9 +404,9 @@ public class BattleScreen extends AbstractScreen {
             // Update enemy tanks list on a screen
             if (tanksToSpawnList.isEmpty()) {
                 if (activeTanksList.isEmpty()) {
-                    // TODO player win condition
-                    //..
-                    System.out.println("player win");
+                    state = Constants.BattleScreenStates.WIN;
+                    System.out.println("Change to WIN state");
+                    victoryPopup.show();
                 }
             } else {
                 if (activeTanksList.size() < activeTanksLimit) {
@@ -409,9 +425,9 @@ public class BattleScreen extends AbstractScreen {
                         spawnPlayerTank(playerSpawnSpot);
                     }
                 } else {
-                    // TODO player lose condition
-                    //..
-                    System.out.println("player lose");
+                    state = Constants.BattleScreenStates.LOSE;
+                    System.out.println("Change to LOSE state (no tanks)");
+                    defeatPopup.show();
                 }
             }
 
@@ -437,11 +453,39 @@ public class BattleScreen extends AbstractScreen {
             if (pausePopup.isReady()) {
                 if (Constants.UserActions.CANCEL == pausePopup.getUserAction()) {
                     state = Constants.BattleScreenStates.PLAY;
+                    System.out.println("Change to PLAY state");
                     pausePopup.hide();
                 } else if (Constants.UserActions.CONFIRM == pausePopup.getUserAction()) {
-                    //TODO switch to some screen
                     pausePopup.hide();
-                    System.out.println("Exit");
+                    //screenController.setActiveScreen(Constants.Screens.MAIN);
+                }
+            }
+
+        } else if (Constants.BattleScreenStates.WIN == state) {
+            victoryPopup.update(keyHandler, mouseHandler);
+            if (Constants.UserActions.CONFIRM == victoryPopup.getUserAction()) {
+                victoryPopup.hide();
+                screenController.setActiveScreen(Constants.Screens.SUMMARY, parameters);
+            }
+
+            // Update explosions state
+            for (Explosion explosion : explosionList) {
+                if (explosion.isActive()) {
+                    explosion.update();
+                }
+            }
+
+        } else if (Constants.BattleScreenStates.LOSE == state) {
+            defeatPopup.update(keyHandler, mouseHandler);
+            if (Constants.UserActions.CONFIRM == defeatPopup.getUserAction()) {
+                defeatPopup.hide();
+                screenController.setActiveScreen(Constants.Screens.SUMMARY, parameters);
+            }
+
+            // Update explosions state
+            for (Explosion explosion : explosionList) {
+                if (explosion.isActive()) {
+                    explosion.update();
                 }
             }
         }
@@ -487,10 +531,16 @@ public class BattleScreen extends AbstractScreen {
 
         tileController.render(g, TileController.LAYER_TOP);
 
+        // GUI elements to render
         if (Constants.BattleScreenStates.PAUSE == state) {
             pausePopup.render(g);
+        } else if (Constants.BattleScreenStates.WIN == state) {
+            victoryPopup.render(g);
+        } else if (Constants.BattleScreenStates.LOSE == state) {
+            defeatPopup.render(g);
         }
 
+        // Console output on top of the all drawings
         font13x15o.render(g, "This is a test", 10, 10);
     }
 
@@ -687,7 +737,7 @@ public class BattleScreen extends AbstractScreen {
         } else if (OnTankDestroyEventType.SPAWN_BONUS_4.equals(onDestroyEventType)) {
             int x = randomizer.nextInt(Constants.SCREEN_WIDTH);
             int y = randomizer.nextInt(Constants.SCREEN_HEIGHT);
-            spawnBonus(x, y, Constants.Bonuses.GRENADE_ID);
+            spawnBonus(x, y, Constants.Bonuses.SHOVEL_ID);
 
         } else {
             throw new RuntimeException("Event processing not implemented for " + onDestroyEventType);
