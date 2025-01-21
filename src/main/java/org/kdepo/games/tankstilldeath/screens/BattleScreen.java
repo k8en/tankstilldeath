@@ -79,6 +79,7 @@ public class BattleScreen extends AbstractScreen {
         tankController = TankController.getInstance();
         tileController = TileController.getInstance();
 
+        //TODO remove this loader after title screen implementation
         Resource tileConfigurationResource = resourcesController.getResource("tile_configuration");
         tileController.loadTilesConfigurations(resourcesController.getPath() + tileConfigurationResource.getPath());
 

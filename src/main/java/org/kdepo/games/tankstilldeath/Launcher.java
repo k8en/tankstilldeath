@@ -3,6 +3,7 @@ package org.kdepo.games.tankstilldeath;
 import org.kdepo.games.tankstilldeath.screens.BattleScreen;
 import org.kdepo.games.tankstilldeath.screens.BriefingScreen;
 import org.kdepo.games.tankstilldeath.screens.SummaryScreen;
+import org.kdepo.games.tankstilldeath.screens.TitleScreen;
 import org.kdepo.graphics.k2d.GameEngine;
 import org.kdepo.graphics.k2d.GamePanel;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
@@ -36,16 +37,19 @@ public class Launcher {
         gameEngine.setScreenWidth(Constants.SCREEN_WIDTH);   // 80 blocks
         gameEngine.setScreenHeight(Constants.SCREEN_HEIGHT); // 60 blocks
 
+        TitleScreen titleScreen = new TitleScreen();
         BriefingScreen briefingScreen = new BriefingScreen();
         BattleScreen battleScreen = new BattleScreen();
         SummaryScreen summaryScreen = new SummaryScreen();
 
+        gameEngine.addScreen(titleScreen);
         gameEngine.addScreen(briefingScreen);
         gameEngine.addScreen(battleScreen);
         gameEngine.addScreen(summaryScreen);
 
+        // Parameters map to share between screens
         Map<String, Object> parameters = new HashMap<>();
-        gameEngine.setActiveScreen(battleScreen.getName(), parameters);
+        gameEngine.setActiveScreen(titleScreen.getName(), parameters);
 
         GamePanel gamePanel = new GamePanel(gameEngine.getScreenWidth(), gameEngine.getScreenHeight());
         gamePanel.setGameEngine(gameEngine);
@@ -61,5 +65,4 @@ public class Launcher {
 
         gamePanel.startGameThread();
     }
-
 }

@@ -54,6 +54,7 @@ public class Constants {
         String BATTLE = "battle";
         String BRIEFING = "briefing";
         String SUMMARY = "summary";
+        String TITLE = "title";
     }
 
     public interface Teams {
