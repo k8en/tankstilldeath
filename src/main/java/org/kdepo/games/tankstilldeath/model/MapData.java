@@ -4,6 +4,17 @@ public class MapData {
 
     private String pathToFolder;
 
+    /**
+     * Map name to display on a briefing screen
+     */
+    private String mapName;
+
+    /**
+     * Next map to load after the current one. Is a resource name.
+     * If next map is null then game will quit to the title screen
+     */
+    private String nextMap;
+
     private String fileNameLayer0;
 
     private String fileNameLayer1;
@@ -22,6 +33,22 @@ public class MapData {
 
     public void setPathToFolder(String pathToFolder) {
         this.pathToFolder = pathToFolder;
+    }
+
+    public String getMapName() {
+        return mapName;
+    }
+
+    public void setMapName(String mapName) {
+        this.mapName = mapName;
+    }
+
+    public String getNextMap() {
+        return nextMap;
+    }
+
+    public void setNextMap(String nextMap) {
+        this.nextMap = nextMap;
     }
 
     public String getFileNameLayer0() {
@@ -76,6 +103,8 @@ public class MapData {
     public String toString() {
         return "MapData{" +
                 "pathToFolder='" + pathToFolder + '\'' +
+                ", mapName='" + mapName + '\'' +
+                ", nextMap='" + nextMap + '\'' +
                 ", fileNameLayer0='" + fileNameLayer0 + '\'' +
                 ", fileNameLayer1='" + fileNameLayer1 + '\'' +
                 ", fileNameLayer2='" + fileNameLayer2 + '\'' +

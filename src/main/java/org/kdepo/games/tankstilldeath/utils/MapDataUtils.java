@@ -22,15 +22,13 @@ public class MapDataUtils {
 
         // Check that path to file is provided
         if (pathToFile == null || pathToFile.isEmpty()) {
-            System.out.println("Cannot load map data because path to file is not provided");
-            return mapData;
+            throw new RuntimeException("Cannot load map data because path to file is not provided");
         }
 
         // Check for file existence
         File file = new File(pathToFile);
         if (!file.exists() || file.isDirectory()) {
-            System.out.println("Cannot load map data because path to file is not exists or directory: " + pathToFile);
-            return mapData;
+            throw new RuntimeException("Cannot load map data because path to file is not exists or directory: " + pathToFile);
         }
 
         // Set path to map folder
@@ -43,9 +41,7 @@ public class MapDataUtils {
         try {
             db = dbf.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            System.out.println("Cannot load map data from file: " + pathToFile);
-            e.printStackTrace();
-            return mapData;
+            throw new RuntimeException("Cannot load map data from file: " + pathToFile, e);
         }
 
         // Load map data
@@ -53,9 +49,7 @@ public class MapDataUtils {
         try {
             xmlDocument = db.parse(pathToFile);
         } catch (IOException | SAXException e) {
-            System.out.println("Cannot load map data from file: " + pathToFile);
-            e.printStackTrace();
-            return mapData;
+            throw new RuntimeException("Cannot load map data from file: " + pathToFile, e);
         }
 
         // Travers through the document
@@ -79,49 +73,76 @@ public class MapDataUtils {
                             continue;
                         }
 
-                        if (name.equals("layer_0")) {
-                            String fileName = propertyElement.getAttribute("file");
-                            if (fileName.isEmpty()) {
-                                System.out.println("Layer 0 file name not found for " + propertyElement);
-                                continue;
-                            }
-                            mapData.setFileNameLayer0(fileName);
+                        switch (name) {
+                            case "map_name": {
+                                String mapName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (mapName.isEmpty()) {
+                                    mapName = null;
+                                }
+                                mapData.setMapName(mapName);
 
-                        } else if (name.equals("layer_1")) {
-                            String fileName = propertyElement.getAttribute("file");
-                            if (fileName.isEmpty()) {
-                                System.out.println("Layer 1 file name not found for " + propertyElement);
-                                continue;
+                                break;
                             }
-                            mapData.setFileNameLayer1(fileName);
+                            case "next_map": {
+                                String nextMap = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (nextMap.isEmpty()) {
+                                    nextMap = null;
+                                }
+                                mapData.setNextMap(nextMap);
 
-                        } else if (name.equals("layer_2")) {
-                            String fileName = propertyElement.getAttribute("file");
-                            if (fileName.isEmpty()) {
-                                System.out.println("Layer 2 file name not found for " + propertyElement);
-                                continue;
+                                break;
                             }
-                            mapData.setFileNameLayer2(fileName);
+                            case "layer_0": {
+                                String fileName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (fileName.isEmpty()) {
+                                    throw new RuntimeException("Layer 0 file name not found for " + pathToFile);
+                                }
+                                mapData.setFileNameLayer0(fileName);
 
-                        } else if (name.equals("spawn_spots")) {
-                            String fileName = propertyElement.getAttribute("file");
-                            if (fileName.isEmpty()) {
-                                System.out.println("Spawn spots file name not found for " + propertyElement);
-                                continue;
+                                break;
                             }
-                            mapData.setFileNameSpawnSpots(fileName);
+                            case "layer_1": {
+                                String fileName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (fileName.isEmpty()) {
+                                    throw new RuntimeException("Layer 1 file name not found for " + pathToFile);
+                                }
+                                mapData.setFileNameLayer1(fileName);
 
-                        } else if (name.equals("tanks_to_spawn")) {
-                            String fileName = propertyElement.getAttribute("file");
-                            if (fileName.isEmpty()) {
-                                System.out.println("Tanks file name not found for " + propertyElement);
-                                continue;
+                                break;
                             }
-                            mapData.setFileNameTanksToSpawn(fileName);
+                            case "layer_2": {
+                                String fileName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (fileName.isEmpty()) {
+                                    throw new RuntimeException("Layer 2 file name not found for " + pathToFile);
+                                }
+                                mapData.setFileNameLayer2(fileName);
 
-                        } else if (name.equals("active_tanks_limit")) {
-                            int activeTanksLimit = DomUtils.resolveIntAttribute(propertyElement, "value");
-                            mapData.setActiveTanksLimit(activeTanksLimit);
+                                break;
+                            }
+                            case "spawn_spots": {
+                                String fileName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (fileName.isEmpty()) {
+                                    System.out.println("Spawn spots file name not found for " + propertyElement);
+                                    continue;
+                                }
+                                mapData.setFileNameSpawnSpots(fileName);
+
+                                break;
+                            }
+                            case "tanks_to_spawn": {
+                                String fileName = DomUtils.resolveStringAttribute(propertyElement, "value");
+                                if (fileName.isEmpty()) {
+                                    System.out.println("Tanks file name not found for " + propertyElement);
+                                    continue;
+                                }
+                                mapData.setFileNameTanksToSpawn(fileName);
+
+                                break;
+                            }
+                            case "active_tanks_limit":
+                                int activeTanksLimit = DomUtils.resolveIntAttribute(propertyElement, "value");
+                                mapData.setActiveTanksLimit(activeTanksLimit);
+                                break;
                         }
                     }
                 }

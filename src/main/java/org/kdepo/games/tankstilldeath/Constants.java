@@ -2,15 +2,16 @@ package org.kdepo.games.tankstilldeath;
 
 public class Constants {
 
-    public static int SCREEN_WIDTH = 1280;
-    public static int SCREEN_HEIGHT = 960;
+    public static final int PLAYER_TANKS_COUNTER = 3;
+    public static final int SCREEN_WIDTH = 1280;
+    public static final int SCREEN_HEIGHT = 960;
 
-    public static int SHIELD_PROTECTION_TIME = 10000;
+    public static final int SHIELD_PROTECTION_TIME = 10000;
 
-    public static int TANK_MOVE_SPEED_LIMIT = 4;
-    public static double TANK_MOVE_SPEED_INCREMENT = 0.5d;
-    public static int TANK_RELOADING_SPEED_LIMIT = 4;
-    public static double TANK_RELOADING_SPEED_INCREMENT = 0.5d;
+    public static final int TANK_MOVE_SPEED_LIMIT = 4;
+    public static final double TANK_MOVE_SPEED_INCREMENT = 0.5d;
+    public static final int TANK_RELOADING_SPEED_LIMIT = 4;
+    public static final double TANK_RELOADING_SPEED_INCREMENT = 0.5d;
 
     public interface BattleScreenStates {
         int PLAY = 0;
@@ -48,6 +49,15 @@ public class Constants {
         String ANIMATION_SMALL = "animation_explosion_00";
         String ANIMATION_MEDIUM = "animation_explosion_01";
         String ANIMATION_BIG = "animation_explosion_02";
+    }
+
+    public interface ScreenParameters {
+        String BONUSES_COLLECTED_COUNTER = "bonuses_collected_counter";
+        String GAME_OVER = "game_over";
+        String MAP_DATA = "map_data";
+        String NEXT_MAP = "next_map";
+        String PLAYER_TANKS_COUNTER = "player_tanks_counter";
+        String TANKS_DESTROYED_COUNTER = "tanks_destroyed_counter";
     }
 
     public interface Screens {

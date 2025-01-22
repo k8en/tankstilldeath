@@ -15,12 +15,9 @@ import org.kdepo.games.tankstilldeath.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.model.OnTankDestroyEventType;
 import org.kdepo.games.tankstilldeath.model.SpawnSpot;
 import org.kdepo.games.tankstilldeath.model.Tank;
-import org.kdepo.games.tankstilldeath.utils.MapDataUtils;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
-import org.kdepo.graphics.k2d.fonts.Font;
 import org.kdepo.graphics.k2d.geometry.Point;
-import org.kdepo.graphics.k2d.resources.Resource;
 import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.screens.AbstractScreen;
 import org.kdepo.graphics.k2d.tiles.Tile;
@@ -52,12 +49,11 @@ public class BattleScreen extends AbstractScreen {
     private final TankController tankController;
     private final TileController tileController;
 
-    private Font font13x15o;
-
     private int playerTanksCounter;
     private Tank playerTank;
 
-    private MapData mapData;
+    private int bonusesCollectedCounter;
+    private int tanksDestroyedCounter;
 
     private int activeTanksLimit;
     private final List<Tank> activeTanksList;
@@ -78,15 +74,6 @@ public class BattleScreen extends AbstractScreen {
         spawnSpotController = SpawnSpotController.getInstance();
         tankController = TankController.getInstance();
         tileController = TileController.getInstance();
-
-        //TODO remove this loader after title screen implementation
-        Resource tileConfigurationResource = resourcesController.getResource("tile_configuration");
-        tileController.loadTilesConfigurations(resourcesController.getPath() + tileConfigurationResource.getPath());
-
-        Resource tankConfigurationResource = resourcesController.getResource("tank_configuration");
-        tankController.loadTanksConfigurations(resourcesController.getPath() + tankConfigurationResource.getPath());
-
-        playerTanksCounter = 3;
 
         activeTanksList = new ArrayList<>();
         bonusList = new ArrayList<>();
@@ -118,13 +105,13 @@ public class BattleScreen extends AbstractScreen {
         explosionList.clear();
         tanksToSpawnList.clear();
 
-        font13x15o = resourcesController.getFont("font_n13x15o");
-
-        Resource mapResource = resourcesController.getResource("map_test");
-        mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
+        MapData mapData = (MapData) parameters.get(Constants.ScreenParameters.MAP_DATA);
         spawnSpotController.loadSpawnSpotData(mapData.getPathToFolder() + File.separator + mapData.getFileNameSpawnSpots());
 
         activeTanksLimit = mapData.getActiveTanksLimit();
+        bonusesCollectedCounter = 0;
+        playerTanksCounter = (int) parameters.get(Constants.ScreenParameters.PLAYER_TANKS_COUNTER);
+        tanksDestroyedCounter = 0;
 
         tanksToSpawnList.clear();
         List<Tank> tanksToSpawnList = tankController.getTanksToSpawnList(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanksToSpawn());
@@ -139,7 +126,7 @@ public class BattleScreen extends AbstractScreen {
         if (playerSpawnSpot != null) {
             spawnPlayerTank(playerSpawnSpot);
         } else {
-            throw new RuntimeException("Player spawn spot is not found for map: " + resourcesController.getPath() + mapResource.getPath());
+            throw new RuntimeException("Player spawn spot is not found for map: " + resourcesController.getPath() + mapData.getFileNameSpawnSpots());
         }
     }
 
@@ -261,6 +248,11 @@ public class BattleScreen extends AbstractScreen {
                                     if (tank.getOnDestroyEventType() != null) {
                                         processTankOnDestroyEvent(tank.getOnDestroyEventType());
                                     }
+
+                                    if (bullet.getTeamId() == Constants.Teams.PLAYER_ID) {
+                                        tanksDestroyedCounter++;
+                                    }
+
                                     it.remove();
                                 }
                             }
@@ -354,12 +346,13 @@ public class BattleScreen extends AbstractScreen {
                 updateTankMovement(playerTank);
             }
 
-            // Check for player tank collision with bonus
+            // Check for player tank has collision with bonus
             if (playerTank.isActive()) {
                 for (Bonus bonus : bonusList) {
                     if (bonus.isActive()) {
                         if (CollisionsChecker.hasCollision(playerTank.getHitBox(), bonus.getHitBox())) {
                             bonus.setActive(false);
+                            bonusesCollectedCounter++;
 
                             if (Constants.Bonuses.STAR_ID == bonus.getBonusId()) {
                                 playerTank.increaseReloadingSpeed();
@@ -458,7 +451,7 @@ public class BattleScreen extends AbstractScreen {
                     pausePopup.hide();
                 } else if (Constants.UserActions.CONFIRM == pausePopup.getUserAction()) {
                     pausePopup.hide();
-                    //screenController.setActiveScreen(Constants.Screens.MAIN);
+                    screenController.setActiveScreen(Constants.Screens.TITLE, parameters);
                 }
             }
 
@@ -466,6 +459,10 @@ public class BattleScreen extends AbstractScreen {
             victoryPopup.update(keyHandler, mouseHandler);
             if (Constants.UserActions.CONFIRM == victoryPopup.getUserAction()) {
                 victoryPopup.hide();
+                parameters.put(Constants.ScreenParameters.GAME_OVER, false);
+                parameters.put(Constants.ScreenParameters.PLAYER_TANKS_COUNTER, playerTanksCounter);
+                parameters.put(Constants.ScreenParameters.BONUSES_COLLECTED_COUNTER, bonusesCollectedCounter);
+                parameters.put(Constants.ScreenParameters.TANKS_DESTROYED_COUNTER, tanksDestroyedCounter);
                 screenController.setActiveScreen(Constants.Screens.SUMMARY, parameters);
             }
 
@@ -480,6 +477,10 @@ public class BattleScreen extends AbstractScreen {
             defeatPopup.update(keyHandler, mouseHandler);
             if (Constants.UserActions.CONFIRM == defeatPopup.getUserAction()) {
                 defeatPopup.hide();
+                parameters.put(Constants.ScreenParameters.GAME_OVER, true);
+                parameters.put(Constants.ScreenParameters.PLAYER_TANKS_COUNTER, playerTanksCounter);
+                parameters.put(Constants.ScreenParameters.BONUSES_COLLECTED_COUNTER, bonusesCollectedCounter);
+                parameters.put(Constants.ScreenParameters.TANKS_DESTROYED_COUNTER, tanksDestroyedCounter);
                 screenController.setActiveScreen(Constants.Screens.SUMMARY, parameters);
             }
 
@@ -540,15 +541,11 @@ public class BattleScreen extends AbstractScreen {
         } else if (Constants.BattleScreenStates.LOSE == state) {
             defeatPopup.render(g);
         }
-
-        // Console output on top of the all drawings
-        font13x15o.render(g, "This is a test", 10, 10);
     }
 
     @Override
     public void dispose() {
         base = null;
-        font13x15o = null;
         playerTank = null;
     }
 
