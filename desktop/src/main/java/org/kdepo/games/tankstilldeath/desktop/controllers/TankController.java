@@ -4,6 +4,8 @@ import org.kdepo.games.tankstilldeath.desktop.model.MoveDirection;
 import org.kdepo.games.tankstilldeath.desktop.model.OnTankDestroyEventType;
 import org.kdepo.games.tankstilldeath.desktop.model.Tank;
 import org.kdepo.games.tankstilldeath.desktop.model.TankConfiguration;
+import org.kdepo.graphics.k2d.animations.Animation;
+import org.kdepo.graphics.k2d.resources.ResourcesController;
 import org.kdepo.graphics.k2d.utils.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,7 +88,7 @@ public class TankController {
 
                         Element tankConfigurationElement = (Element) tankConfigurationNode;
 
-                        int tankId = DomUtils.resolveIntAttribute(tankConfigurationElement, "tank_id");
+                        int tankTypeId = DomUtils.resolveIntAttribute(tankConfigurationElement, "tank_type_id");
                         String animationsName = DomUtils.resolveStringAttribute(tankConfigurationElement, "animations");
                         double movementSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "movement_speed");
                         double reloadingSpeed = DomUtils.resolveDoubleAttribute(tankConfigurationElement, "reloading_speed");
@@ -103,10 +105,10 @@ public class TankController {
                         int bulletOffsetSouthY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_south_y");
                         int bulletOffsetWestX = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_west_x");
                         int bulletOffsetWestY = DomUtils.resolveIntAttribute(tankConfigurationElement, "bullet_offset_west_y");
-                        int armorTypeId = DomUtils.resolveIntAttribute(tankConfigurationElement, "armor_type_id");
+                        int armorAmount = DomUtils.resolveIntAttribute(tankConfigurationElement, "armor_amount");
 
                         TankConfiguration tankConfiguration = new TankConfiguration(
-                                tankId,
+                                tankTypeId,
                                 animationsName,
                                 movementSpeed,
                                 reloadingSpeed,
@@ -123,10 +125,10 @@ public class TankController {
                                 bulletOffsetSouthY,
                                 bulletOffsetWestX,
                                 bulletOffsetWestY,
-                                armorTypeId
+                                armorAmount
                         );
 
-                        tankConfigurationMap.put(tankConfiguration.getTankId(), tankConfiguration);
+                        tankConfigurationMap.put(tankConfiguration.getTankTypeId(), tankConfiguration);
 
                         System.out.println("Tank configuration loaded " + tankConfiguration);
                     }
@@ -204,18 +206,22 @@ public class TankController {
         return tanksToSpawnList;
     }
 
-    public Tank prepareTank(int tankId, int team, double x, double y, MoveDirection moveDirection) {
-        TankConfiguration tankConfiguration = tankConfigurationMap.get(tankId);
+    public Tank prepareTank(int tankTypeId, int team, double x, double y, MoveDirection moveDirection) {
+        TankConfiguration tankConfiguration = tankConfigurationMap.get(tankTypeId);
+
+        ResourcesController resourcesController = ResourcesController.getInstance();
+        Map<String, Animation> animationMap = resourcesController.getAnimations(tankConfiguration.getAnimationsCollectionName());
+
         return new Tank(
-                tankId,
-                tankConfiguration.getAnimationsCollectionName(),
+                tankTypeId,
+                animationMap,
                 x, y,
                 team,
                 moveDirection,
-                tankConfiguration.getMovementSpeed(),
+                tankConfiguration.getMoveSpeed(),
                 tankConfiguration.getBulletTypeId(),
                 tankConfiguration.getReloadingSpeed(),
-                tankConfiguration.getArmorTypeId(),
+                tankConfiguration.getArmorAmount(),
                 tankConfiguration.getHitBoxOffsetX(), tankConfiguration.getHitBoxOffsetY(), tankConfiguration.getHitBoxWidth(), tankConfiguration.getHitBoxHeight(),
                 tankConfiguration.getBulletOffsetXNorth(), tankConfiguration.getBulletOffsetYNorth(),
                 tankConfiguration.getBulletOffsetXEast(), tankConfiguration.getBulletOffsetYEast(),

@@ -8,14 +8,13 @@ import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
-import org.kdepo.graphics.k2d.resources.ResourcesController;
 
 import java.awt.*;
 import java.util.Map;
 
 public class Tank extends AbstractHittableGameObject {
 
-    private final int tankId;
+    private final int tankTypeId;
     private final int teamId;
 
     private MoveDirection moveDirection;
@@ -29,7 +28,7 @@ public class Tank extends AbstractHittableGameObject {
     private double reloadingProgress;
     private double reloadingSpeed;
 
-    private int armour;
+    private int armourAmount;
 
     private boolean isProtectedByShield;
     private long shieldTimer;
@@ -50,8 +49,8 @@ public class Tank extends AbstractHittableGameObject {
     private final VirtualKeyHandler keyHandler;
     private Bot bot;
 
-    public Tank(int tankId,
-                String animationMapName,
+    public Tank(int tankTypeId,
+                Map<String, Animation> animationMap,
                 double centerX,
                 double centerY,
                 int teamId,
@@ -59,7 +58,7 @@ public class Tank extends AbstractHittableGameObject {
                 double moveSpeed,
                 int bulletTypeId,
                 double reloadingSpeed,
-                int armour,
+                int armourAmount,
                 int hitBoxOffsetX,
                 int hitBoxOffsetY,
                 int hitBoxWidth,
@@ -72,14 +71,12 @@ public class Tank extends AbstractHittableGameObject {
                 int bulletOffsetSouthY,
                 int bulletOffsetWestX,
                 int bulletOffsetWestY) {
-        ResourcesController resourcesController = ResourcesController.getInstance();
-
         // Setup generic parameters
-        this.tankId = tankId;
+        this.tankTypeId = tankTypeId;
         this.teamId = teamId;
         this.moveSpeed = moveSpeed;
         isMoving = false;
-        this.armour = armour;
+        this.armourAmount = armourAmount;
         isActive = false;
         this.moveDirection = moveDirection;
 
@@ -87,8 +84,6 @@ public class Tank extends AbstractHittableGameObject {
         shieldEffect = new ShieldEffect();
 
         // Setup animations
-        Map<String, Animation> animationMap = resourcesController.getAnimations(animationMapName);
-
         Animation activeAnimation = null;
         if (MoveDirection.NORTH.equals(this.moveDirection)) {
             activeAnimation = animationMap.get("idle_north");
@@ -176,8 +171,8 @@ public class Tank extends AbstractHittableGameObject {
         }
     }
 
-    public int getTankId() {
-        return tankId;
+    public int getTankTypeId() {
+        return tankTypeId;
     }
 
     public int getTeamId() {
@@ -256,8 +251,8 @@ public class Tank extends AbstractHittableGameObject {
         }
     }
 
-    public int getArmour() {
-        return armour;
+    public int getArmourAmount() {
+        return armourAmount;
     }
 
     public boolean isProtectedByShield() {
@@ -269,12 +264,12 @@ public class Tank extends AbstractHittableGameObject {
         shieldTimer = System.currentTimeMillis() + millis;
     }
 
-    public void changeArmour(int value) {
-        armour = armour + value;
-        if (armour < 0) {
-            armour = 0;
-        } else if (armour > 3) {
-            armour = 3;
+    public void changeArmourAmount(int value) {
+        armourAmount = armourAmount + value;
+        if (armourAmount < 0) {
+            armourAmount = 0;
+        } else if (armourAmount > 3) {
+            armourAmount = 3;
         }
     }
 
@@ -400,7 +395,7 @@ public class Tank extends AbstractHittableGameObject {
                 ", isMoving=" + isMoving +
                 ", movementSpeed=" + moveSpeed +
                 ", bulletTypeId=" + bulletTypeId +
-                ", armorTypeId=" + armour +
+                ", armourAmount=" + armourAmount +
                 ", isReadyToShot=" + isReadyToShot +
                 ", reloadingProgress=" + reloadingProgress +
                 ", reloadingSpeed=" + reloadingSpeed +

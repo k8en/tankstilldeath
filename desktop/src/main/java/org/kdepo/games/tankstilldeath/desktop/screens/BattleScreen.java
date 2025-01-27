@@ -308,7 +308,7 @@ public class BattleScreen extends AbstractScreen {
                                 tank.setProtectedByShield(Constants.SHIELD_PROTECTION_TIME);
 
                             } else if (Constants.Bonuses.TANK_ID == bonus.getBonusId()) {
-                                Tank additionalTank = tankController.prepareTank(tank.getTankId(), tank.getTeamId(), 0, 0, MoveDirection.NORTH);
+                                Tank additionalTank = tankController.prepareTank(tank.getTankTypeId(), tank.getTeamId(), 0, 0, MoveDirection.NORTH);
                                 additionalTank.setMoveSpeed(tank.getMoveSpeed());
                                 additionalTank.setBulletTypeId(tank.getBulletTypeId());
 
@@ -588,7 +588,7 @@ public class BattleScreen extends AbstractScreen {
     private boolean updateTankIsDestroyed(Tank tank, Bullet bullet) {
         boolean isDestroyed = false;
 
-        if (tank.getArmour() == 0) {
+        if (tank.getArmourAmount() == 0) {
             Point tankCenter = tank.getCenter();
             spawnExplosion(tankCenter.getX(), tankCenter.getY(), Constants.Explosions.ANIMATION_MEDIUM);
 
@@ -606,10 +606,10 @@ public class BattleScreen extends AbstractScreen {
     public void updateTankArmourOnHit(Tank tank, Bullet bullet) {
         // Update tank armour according to bullet power
         if (bullet.getBulletTypeId() == Constants.Bullets.STANDARD_ID) {
-            tank.changeArmour(-1);
+            tank.changeArmourAmount(-1);
 
         } else if (bullet.getBulletTypeId() == Constants.Bullets.ARMOUR_PIERCING_ID) {
-            tank.changeArmour(-3);
+            tank.changeArmourAmount(-3);
 
         } else {
             throw new RuntimeException("Collision is not implemented for bullet id " + bullet.getBulletTypeId());

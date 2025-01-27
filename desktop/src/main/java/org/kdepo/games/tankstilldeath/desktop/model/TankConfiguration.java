@@ -7,7 +7,7 @@ public class TankConfiguration {
     /**
      * Tank type identification
      */
-    private final int tankId;
+    private final int tankTypeId;
 
     /**
      * Images and animations used by tank
@@ -17,7 +17,7 @@ public class TankConfiguration {
     /**
      * Base movement speed
      */
-    private final double movementSpeed;
+    private final double moveSpeed;
 
     /**
      * Base weapon reloading speed
@@ -90,14 +90,31 @@ public class TankConfiguration {
     private final int bulletOffsetYWest;
 
     /**
-     * Armor type id
+     * Armor amount
      */
-    private final int armorTypeId;
+    private final int armorAmount;
 
-    public TankConfiguration(int tankId, String animationsCollectionName, double movementSpeed, double reloadingSpeed, int hitBoxOffsetX, int hitBoxOffsetY, int hitBoxWidth, int hitBoxHeight, int bulletTypeId, int bulletOffsetXNorth, int bulletOffsetYNorth, int bulletOffsetXEast, int bulletOffsetYEast, int bulletOffsetXSouth, int bulletOffsetYSouth, int bulletOffsetXWest, int bulletOffsetYWest, int armorTypeId) {
-        this.tankId = tankId;
+    public TankConfiguration(int tankTypeId,
+                             String animationsCollectionName,
+                             double moveSpeed,
+                             double reloadingSpeed,
+                             int hitBoxOffsetX,
+                             int hitBoxOffsetY,
+                             int hitBoxWidth,
+                             int hitBoxHeight,
+                             int bulletTypeId,
+                             int bulletOffsetXNorth,
+                             int bulletOffsetYNorth,
+                             int bulletOffsetXEast,
+                             int bulletOffsetYEast,
+                             int bulletOffsetXSouth,
+                             int bulletOffsetYSouth,
+                             int bulletOffsetXWest,
+                             int bulletOffsetYWest,
+                             int armorAmount) {
+        this.tankTypeId = tankTypeId;
         this.animationsCollectionName = animationsCollectionName;
-        this.movementSpeed = movementSpeed;
+        this.moveSpeed = moveSpeed;
         this.reloadingSpeed = reloadingSpeed;
         this.hitBoxOffsetX = hitBoxOffsetX;
         this.hitBoxOffsetY = hitBoxOffsetY;
@@ -112,19 +129,19 @@ public class TankConfiguration {
         this.bulletOffsetYSouth = bulletOffsetYSouth;
         this.bulletOffsetXWest = bulletOffsetXWest;
         this.bulletOffsetYWest = bulletOffsetYWest;
-        this.armorTypeId = armorTypeId;
+        this.armorAmount = armorAmount;
     }
 
-    public int getTankId() {
-        return tankId;
+    public int getTankTypeId() {
+        return tankTypeId;
     }
 
     public String getAnimationsCollectionName() {
         return animationsCollectionName;
     }
 
-    public double getMovementSpeed() {
-        return movementSpeed;
+    public double getMoveSpeed() {
+        return moveSpeed;
     }
 
     public double getReloadingSpeed() {
@@ -183,16 +200,16 @@ public class TankConfiguration {
         return bulletOffsetYWest;
     }
 
-    public int getArmorTypeId() {
-        return armorTypeId;
+    public int getArmorAmount() {
+        return armorAmount;
     }
 
     @Override
     public String toString() {
         return "TankConfiguration{" +
-                "tankId=" + tankId +
+                "tankId=" + tankTypeId +
                 ", animationsCollectionName='" + animationsCollectionName + '\'' +
-                ", movementSpeed=" + movementSpeed +
+                ", moveSpeed=" + moveSpeed +
                 ", reloadingSpeed=" + reloadingSpeed +
                 ", hitBoxOffsetX=" + hitBoxOffsetX +
                 ", hitBoxOffsetY=" + hitBoxOffsetY +
@@ -207,7 +224,7 @@ public class TankConfiguration {
                 ", bulletOffsetYSouth=" + bulletOffsetYSouth +
                 ", bulletOffsetXWest=" + bulletOffsetXWest +
                 ", bulletOffsetYWest=" + bulletOffsetYWest +
-                ", armorTypeId=" + armorTypeId +
+                ", armorAmount=" + armorAmount +
                 '}';
     }
 
@@ -215,8 +232,8 @@ public class TankConfiguration {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         TankConfiguration that = (TankConfiguration) o;
-        return tankId == that.tankId
-                && Double.compare(movementSpeed, that.movementSpeed) == 0
+        return tankTypeId == that.tankTypeId
+                && Double.compare(moveSpeed, that.moveSpeed) == 0
                 && Double.compare(reloadingSpeed, that.reloadingSpeed) == 0
                 && hitBoxOffsetX == that.hitBoxOffsetX
                 && hitBoxOffsetY == that.hitBoxOffsetY
@@ -231,12 +248,12 @@ public class TankConfiguration {
                 && bulletOffsetYSouth == that.bulletOffsetYSouth
                 && bulletOffsetXWest == that.bulletOffsetXWest
                 && bulletOffsetYWest == that.bulletOffsetYWest
-                && armorTypeId == that.armorTypeId
+                && armorAmount == that.armorAmount
                 && Objects.equals(animationsCollectionName, that.animationsCollectionName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tankId, animationsCollectionName, movementSpeed, reloadingSpeed, hitBoxOffsetX, hitBoxOffsetY, hitBoxWidth, hitBoxHeight, bulletTypeId, bulletOffsetXNorth, bulletOffsetYNorth, bulletOffsetXEast, bulletOffsetYEast, bulletOffsetXSouth, bulletOffsetYSouth, bulletOffsetXWest, bulletOffsetYWest, armorTypeId);
+        return Objects.hash(tankTypeId, animationsCollectionName, moveSpeed, reloadingSpeed, hitBoxOffsetX, hitBoxOffsetY, hitBoxWidth, hitBoxHeight, bulletTypeId, bulletOffsetXNorth, bulletOffsetYNorth, bulletOffsetXEast, bulletOffsetYEast, bulletOffsetXSouth, bulletOffsetYSouth, bulletOffsetXWest, bulletOffsetYWest, armorAmount);
     }
 }
