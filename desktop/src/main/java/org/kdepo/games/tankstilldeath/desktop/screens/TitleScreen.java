@@ -90,13 +90,13 @@ public class TitleScreen extends AbstractScreen {
 
     @Override
     public void update(KeyHandler keyHandler, MouseHandler mouseHandler) {
-        if (keyHandler.isUpPressed && !keyHandler.isDownPressed) {
+        if (keyHandler.isUpPressed() && !keyHandler.isDownPressed()) {
             selectedMenuItemNumber--;
             if (selectedMenuItemNumber < 0) {
                 selectedMenuItemNumber = 0;
             }
 
-        } else if (!keyHandler.isUpPressed && keyHandler.isDownPressed) {
+        } else if (!keyHandler.isUpPressed() && keyHandler.isDownPressed()) {
             selectedMenuItemNumber++;
             if (selectedMenuItemNumber > menuItems.length - 1) {
                 selectedMenuItemNumber = menuItems.length - 1;

@@ -5,19 +5,19 @@ import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
 
-    public boolean isEscapePressed;
+    private boolean isEscapePressed;
 
-    public boolean isEnterPressed;
+    private boolean isEnterPressed;
 
-    public boolean isSpacePressed;
+    private boolean isSpacePressed;
 
-    public boolean isUpPressed;
+    private boolean isUpPressed;
 
-    public boolean isRightPressed;
+    private boolean isRightPressed;
 
-    public boolean isDownPressed;
+    private boolean isDownPressed;
 
-    public boolean isLeftPressed;
+    private boolean isLeftPressed;
 
     @Override
     public void keyTyped(KeyEvent e) {

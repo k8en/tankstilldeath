@@ -61,19 +61,19 @@ public class PausePopup extends AbstractPopup {
         if (keyHandler.isEscapePressed()) {
             userAction = Constants.UserActions.CANCEL;
 
-        } else if (keyHandler.isLeftPressed && !keyHandler.isRightPressed) {
+        } else if (keyHandler.isLeftPressed() && !keyHandler.isRightPressed()) {
             setFocusOnPreviousControls();
             readyTimer = System.currentTimeMillis() + 100;
 
-        } else if (!keyHandler.isLeftPressed && keyHandler.isRightPressed) {
+        } else if (!keyHandler.isLeftPressed() && keyHandler.isRightPressed()) {
             setFocusOnNextControls();
             readyTimer = System.currentTimeMillis() + 100;
 
-        } else if (keyHandler.isUpPressed && !keyHandler.isDownPressed) {
+        } else if (keyHandler.isUpPressed() && !keyHandler.isDownPressed()) {
             setFocusOnNextControls();
             readyTimer = System.currentTimeMillis() + 100;
 
-        } else if (!keyHandler.isUpPressed && keyHandler.isDownPressed) {
+        } else if (!keyHandler.isUpPressed() && keyHandler.isDownPressed()) {
             setFocusOnPreviousControls();
             readyTimer = System.currentTimeMillis() + 100;
 
