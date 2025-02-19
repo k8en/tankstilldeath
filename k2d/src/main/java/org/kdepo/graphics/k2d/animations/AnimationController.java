@@ -72,72 +72,87 @@ public class AnimationController {
     }
 
     public void update() {
-        if (isActiveAnimationCompleted) {
-            switch (animationPlayMode) {
-                case ONCE: {
-                    // Do nothing ?
-                    break;
-                }
-                case LOOP: {
-                    restartActiveAnimation();
-                    break;
-                }
-                case BOUNCE: {
-                    // Change play direction
-                    switch (animationPlayDirection) {
-                        case FORWARD: {
-                            animationPlayDirection = AnimationPlayDirection.BACKWARD;
-                            break;
-                        }
-                        case BACKWARD: {
-                            animationPlayDirection = AnimationPlayDirection.FORWARD;
-                            break;
-                        }
-                        default: {
-                            throw new RuntimeException("Animation play direction is not supported: " + animationPlayDirection.name());
-                        }
-                    }
-                    restartActiveAnimation();
-                    break;
-                }
-                default: {
-                    throw new RuntimeException("Animation play mode is not supported: " + animationPlayMode.name());
-                }
-            }
+        if (activeFrameTimer >= activeFrame.getDuration()) {
+            // Current frame time is expired
+            this.isActiveFrameCompleted = true;
 
-        } else if (isActiveFrameCompleted) {
+            // Trying to set next frame as active
+            if (AnimationPlayDirection.FORWARD.equals(animationPlayDirection)) {
+                if (activeFrame.getNextFrame() != null) {
+                    activeFrame = activeFrame.getNextFrame();
+                    isActiveFrameCompleted = false;
+                    activeFrameTimer = 0.0f;
 
-            if ((AnimationPlayDirection.FORWARD.equals(animationPlayDirection) && activeFrame.getNextFrame() == null)
-                    || (AnimationPlayDirection.BACKWARD.equals(animationPlayDirection) && activeFrame.getPreviousFrame() == null)) {
-                // No more frames to switch - just set the flag on
-                isActiveAnimationCompleted = true;
+                } else {
+                    this.isActiveAnimationCompleted = true;
+                }
+
+            } else if (AnimationPlayDirection.BACKWARD.equals(animationPlayDirection)) {
+                if (activeFrame.getPreviousFrame() != null) {
+                    activeFrame = activeFrame.getPreviousFrame();
+                    isActiveFrameCompleted = false;
+                    activeFrameTimer = 0.0f;
+
+                } else {
+                    this.isActiveAnimationCompleted = true;
+                }
 
             } else {
-                // Switch to the next frame and set the flag off
-                switch (animationPlayDirection) {
-                    case FORWARD: {
-                        activeFrame = activeFrame.getNextFrame();
-                        break;
-                    }
-                    case BACKWARD: {
-                        activeFrame = activeFrame.getPreviousFrame();
-                        break;
-                    }
-                    default: {
+                throw new RuntimeException("Animation play direction is not supported: " + animationPlayDirection.name());
+            }
+
+            // Next frame was not found
+            if (this.isActiveAnimationCompleted) {
+                if (AnimationPlayMode.LOOP.equals(animationPlayMode)) {
+                    if (AnimationPlayDirection.FORWARD.equals(animationPlayDirection)) {
+                        this.isActiveAnimationCompleted = false;
+                        activeFrame = activeAnimation.getAnimationFrames().get(0);
+                        isActiveFrameCompleted = false;
+                        activeFrameTimer = 0.0f;
+
+                    } else if (AnimationPlayDirection.BACKWARD.equals(animationPlayDirection)) {
+                        this.isActiveAnimationCompleted = false;
+                        activeFrame = activeAnimation.getAnimationFrames().get(activeAnimation.getAnimationFrames().size() - 1);
+                        isActiveFrameCompleted = false;
+                        activeFrameTimer = 0.0f;
+
+                    } else {
                         throw new RuntimeException("Animation play direction is not supported: " + animationPlayDirection.name());
                     }
+
+                } else if (AnimationPlayMode.BOUNCE.equals(animationPlayMode)) {
+                    if (AnimationPlayDirection.FORWARD.equals(animationPlayDirection)) {
+                        this.isActiveAnimationCompleted = false;
+                        activeFrame = activeAnimation.getAnimationFrames().get(activeAnimation.getAnimationFrames().size() - 1);
+                        isActiveFrameCompleted = false;
+                        activeFrameTimer = 0.0f;
+                        animationPlayDirection = AnimationPlayDirection.BACKWARD;
+
+                    } else if (AnimationPlayDirection.BACKWARD.equals(animationPlayDirection)) {
+                        this.isActiveAnimationCompleted = false;
+                        activeFrame = activeAnimation.getAnimationFrames().get(0);
+                        isActiveFrameCompleted = false;
+                        activeFrameTimer = 0.0f;
+                        animationPlayDirection = AnimationPlayDirection.FORWARD;
+
+                    } else {
+                        throw new RuntimeException("Animation play direction is not supported: " + animationPlayDirection.name());
+                    }
+
+                } else if (AnimationPlayMode.ONCE.equals(animationPlayMode)) {
+                    // Consume update method invocation
+                    //..
+
+                } else {
+                    throw new RuntimeException("Animation play direction is not supported: " + animationPlayDirection.name());
                 }
-                isActiveFrameCompleted = false;
-                activeFrameTimer = 0.0f;
+
             }
 
+
         } else {
-            // Check if active frame completed
-            if (activeFrameTimer >= activeFrame.getDuration()) {
-                isActiveFrameCompleted = true;
-            } else {
-                activeFrameTimer = activeFrameTimer + animationSpeed;
-            }
+            // Update current frame timer
+            activeFrameTimer = activeFrameTimer + animationSpeed;
         }
     }
 
@@ -148,8 +163,7 @@ public class AnimationController {
                 break;
             }
             case BACKWARD: {
-                //activeFrame = activeAnimation.getAnimationFrames().get(activeAnimation.getAnimationFrames().size() - 1);
-                activeFrame = activeAnimation.getAnimationFrames().get(0);
+                activeFrame = activeAnimation.getAnimationFrames().get(activeAnimation.getAnimationFrames().size() - 1);
                 break;
             }
             default: {
