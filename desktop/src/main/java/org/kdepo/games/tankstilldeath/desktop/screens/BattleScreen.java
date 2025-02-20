@@ -6,15 +6,7 @@ import org.kdepo.games.tankstilldeath.desktop.controllers.TankController;
 import org.kdepo.games.tankstilldeath.desktop.gui.DefeatPopup;
 import org.kdepo.games.tankstilldeath.desktop.gui.PausePopup;
 import org.kdepo.games.tankstilldeath.desktop.gui.VictoryPopup;
-import org.kdepo.games.tankstilldeath.desktop.model.Base;
-import org.kdepo.games.tankstilldeath.desktop.model.Bonus;
-import org.kdepo.games.tankstilldeath.desktop.model.Bullet;
-import org.kdepo.games.tankstilldeath.desktop.model.Explosion;
-import org.kdepo.games.tankstilldeath.desktop.model.MapData;
-import org.kdepo.games.tankstilldeath.desktop.model.MoveDirection;
-import org.kdepo.games.tankstilldeath.desktop.model.OnTankDestroyEventType;
-import org.kdepo.games.tankstilldeath.desktop.model.SpawnSpot;
-import org.kdepo.games.tankstilldeath.desktop.model.Tank;
+import org.kdepo.games.tankstilldeath.desktop.model.*;
 import org.kdepo.graphics.k2d.KeyHandler;
 import org.kdepo.graphics.k2d.MouseHandler;
 import org.kdepo.graphics.k2d.geometry.Point;
@@ -26,11 +18,8 @@ import org.kdepo.graphics.k2d.utils.CollisionsChecker;
 
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BattleScreen extends AbstractScreen {
 
@@ -117,7 +106,7 @@ public class BattleScreen extends AbstractScreen {
         List<Tank> tanksToSpawnList = tankController.getTanksToSpawnList(mapData.getPathToFolder() + File.separator + mapData.getFileNameTanksToSpawn());
         this.tanksToSpawnList.addAll(tanksToSpawnList);
 
-        tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
+        tileController.loadLayersData(mapData.getPathToFolder() + File.separator);
 
         base = new Base();
         base.setActive(true);
@@ -287,7 +276,13 @@ public class BattleScreen extends AbstractScreen {
             for (Tank tank : activeTanksList) {
                 tank.resolveControlsAutomatically(
                         playerTank.getHitBox(),
-                        base.getHitBox()
+                        base.getHitBox(),
+                        tank,
+                        activeTanksList,
+                        bulletList,
+                        tileController.getLayerData(TileController.LAYER_BOTTOM),
+                        tileController.getLayerData(TileController.LAYER_MIDDLE),
+                        tileController.getLayerData(TileController.LAYER_TOP)
                 );
 
                 if (tank.isMoving()) {

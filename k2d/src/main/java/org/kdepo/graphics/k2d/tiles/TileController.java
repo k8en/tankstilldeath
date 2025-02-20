@@ -40,20 +40,44 @@ public class TileController {
         tileConfigurationMap = new HashMap<>();
     }
 
+    public Tile[][] getLayerData(int layer) {
+        if (TileController.LAYER_BOTTOM == layer) {
+            return layerData0;
+        } else if (TileController.LAYER_MIDDLE == layer) {
+            return layerData1;
+        } else if (TileController.LAYER_TOP == layer) {
+            return layerData2;
+        } else {
+            throw new RuntimeException("Unknown layer " + layer);
+        }
+    }
+
+    public void setLayerData(int layer, Tile[][] layerData) {
+        if (TileController.LAYER_BOTTOM == layer) {
+            layerData0 = layerData;
+        } else if (TileController.LAYER_MIDDLE == layer) {
+            layerData1 = layerData;
+        } else if (TileController.LAYER_TOP == layer) {
+            layerData2 = layerData;
+        } else {
+            throw new RuntimeException("Unknown layer " + layer);
+        }
+    }
+
     public void loadTilesConfigurations(String pathToFile) {
         tileConfigurationMap = TilesUtils.loadConfigurations(pathToFile);
         System.out.println("Loaded tiles configurations: " + tileConfigurationMap.size());
     }
 
-    public void loadLayerData(String pathToFile) {
+    public void loadLayersData(String pathToFile) {
         System.out.println("Loading layer data from " + pathToFile);
 
-        layerData0 = getLayerData(pathToFile + File.separator + "0.layer");
-        layerData1 = getLayerData(pathToFile + File.separator + "1.layer");
-        layerData2 = getLayerData(pathToFile + File.separator + "2.layer");
+        layerData0 = loadLayerData(pathToFile + File.separator + "0.layer");
+        layerData1 = loadLayerData(pathToFile + File.separator + "1.layer");
+        layerData2 = loadLayerData(pathToFile + File.separator + "2.layer");
     }
 
-    private Tile[][] getLayerData(String pathToFile) {
+    public Tile[][] loadLayerData(String pathToFile) {
         List<String> rawLines = FilesUtils.readLines(pathToFile);
 
         int y = rawLines.size();

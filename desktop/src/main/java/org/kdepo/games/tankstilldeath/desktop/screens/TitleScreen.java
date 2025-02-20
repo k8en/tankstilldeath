@@ -75,7 +75,7 @@ public class TitleScreen extends AbstractScreen {
         Resource mapResource = resourcesController.getResource("map_00");
         mapData = MapDataUtils.loadMapData(resourcesController.getPath() + mapResource.getPath());
 
-        tileController.loadLayerData(mapData.getPathToFolder() + File.separator);
+        tileController.loadLayersData(mapData.getPathToFolder() + File.separator);
 
         // Set next map name to load on a brief screen
         String nextMap = mapData.getNextMap();

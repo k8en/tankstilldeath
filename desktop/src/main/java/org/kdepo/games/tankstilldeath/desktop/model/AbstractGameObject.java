@@ -4,12 +4,19 @@ import org.kdepo.graphics.k2d.animations.AnimationController;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
 
 import java.awt.*;
+import java.util.UUID;
 
 public abstract class AbstractGameObject extends Rectangle {
+
+    protected UUID uuid;
 
     protected boolean isActive;
 
     protected AnimationController animationController;
+
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public boolean isActive() {
         return isActive;

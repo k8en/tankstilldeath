@@ -1,16 +1,26 @@
 package org.kdepo.games.tankstilldeath.desktop.model;
 
 import org.kdepo.graphics.k2d.geometry.Rectangle;
+import org.kdepo.graphics.k2d.tiles.Tile;
+
+import java.util.List;
 
 public class Bot {
+
+    private Rectangle movementArea;
 
     private long timeToChangeMoveDirection;
 
     public Bot() {
+        movementArea = new Rectangle();
         timeToChangeMoveDirection = System.currentTimeMillis() + 3000;
     }
 
-    public void pressAnyKeys(VirtualKeyHandler keyHandler, Rectangle bot, Rectangle player, Rectangle base) {
+    public void setMovementArea(int width, int height) {
+        this.movementArea = new Rectangle(0, 0, width, height);
+    }
+
+    public void pressAnyKeys(VirtualKeyHandler keyHandler, Rectangle player, Rectangle base, Tank bot, List<Tank> activeTanksList, List<Bullet> bulletList, Tile[][] layerDataBottom, Tile[][] layerDataMiddle, Tile[][] layerDataTop) {
         int dx = (int) (bot.getX() - player.getX());
         int dy = (int) (bot.getY() - player.getY());
 

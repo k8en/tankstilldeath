@@ -8,9 +8,12 @@ import org.kdepo.graphics.k2d.animations.AnimationPlayDirection;
 import org.kdepo.graphics.k2d.animations.AnimationPlayMode;
 import org.kdepo.graphics.k2d.geometry.Point;
 import org.kdepo.graphics.k2d.geometry.Rectangle;
+import org.kdepo.graphics.k2d.tiles.Tile;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Tank extends AbstractHittableGameObject {
 
@@ -72,6 +75,7 @@ public class Tank extends AbstractHittableGameObject {
                 int bulletOffsetWestX,
                 int bulletOffsetWestY) {
         // Setup generic parameters
+        uuid = UUID.randomUUID();
         this.tankTypeId = tankTypeId;
         this.teamId = teamId;
         this.moveSpeed = moveSpeed;
@@ -138,6 +142,7 @@ public class Tank extends AbstractHittableGameObject {
         keyHandler = new VirtualKeyHandler();
         if (Constants.Teams.ENEMY_ID == teamId) {
             bot = new Bot();
+            bot.setMovementArea(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
         }
     }
 
@@ -317,9 +322,9 @@ public class Tank extends AbstractHittableGameObject {
     /**
      * To process AI inputs
      */
-    public void resolveControlsAutomatically(Rectangle player, Rectangle base) {
+    public void resolveControlsAutomatically(Rectangle player, Rectangle base, Tank tank, List<Tank> activeTanksList, List<Bullet> bulletList, Tile[][] layerDataBottom, Tile[][] layerDataMiddle, Tile[][] layerDataTop) {
         if (bot != null) {
-            bot.pressAnyKeys(keyHandler, hitBox, player, base);
+            bot.pressAnyKeys(this.keyHandler, player, base, tank, activeTanksList, bulletList, layerDataBottom, layerDataMiddle, layerDataTop);
             applyVirtualKeys(this.keyHandler);
         }
     }
